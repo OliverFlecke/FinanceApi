@@ -13,8 +13,10 @@ namespace FinanceApi
     {
         readonly IApiVersionDescriptionProvider _provider;
 
-        public ConfigureSwaggerOptions(IApiVersionDescriptionProvider provider) =>
+        public ConfigureSwaggerOptions(IApiVersionDescriptionProvider provider)
+        {
             _provider = provider;
+        }
 
         public void Configure(SwaggerGenOptions options)
         {
@@ -28,6 +30,8 @@ namespace FinanceApi
                         Title = $"Finance API {description.ApiVersion}",
                         Description = "Get stock quotes and store information about personal finances",
                     });
+                options.SchemaGeneratorOptions.SchemaIdSelector =
+                    (type) => type.Name.Replace("Dto", string.Empty);
             }
 
             // Set the comments path for the Swagger JSON and UI.
