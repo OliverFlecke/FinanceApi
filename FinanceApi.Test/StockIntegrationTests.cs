@@ -31,5 +31,45 @@ namespace FinanceApi.Test
             var stocks = JsonSerializer.Deserialize<List<StockDto>>(await response.Content.ReadAsStringAsync());
             stocks.Should().BeEmpty(because: "no symboles has been provided");
         }
+
+        [Fact]
+        public async Task GetStockSymbol_Single_Test()
+        {
+            // Arrange
+            var client = _factory.CreateClient();
+            var uri = new UriBuilder
+            {
+                Path = "/api/v1/stock",
+                Query = "symbols=AAPL",
+            };
+
+            // Act
+            var response = await client.GetAsync(uri.ToString());
+
+            // Assert
+            response.EnsureSuccessStatusCode();
+            var stocks = JsonSerializer.Deserialize<List<StockDto>>(await response.Content.ReadAsStringAsync());
+            stocks.Should().HaveCount(1, because: "we only asked for one symbol");
+        }
+
+        [Fact]
+        public async Task GetStockSymbol_Multiple_Test()
+        {
+            // Arrange
+            var client = _factory.CreateClient();
+            var uri = new UriBuilder
+            {
+                Path = "/api/v1/stock",
+                Query = "symbols=AAPL,MSFT",
+            };
+
+            // Act
+            var response = await client.GetAsync(uri.ToString());
+
+            // Assert
+            response.EnsureSuccessStatusCode();
+            var stocks = JsonSerializer.Deserialize<List<StockDto>>(await response.Content.ReadAsStringAsync());
+            stocks.Should().HaveCount(2, because: "we asked for multiple symbols");
+        }
     }
 }
