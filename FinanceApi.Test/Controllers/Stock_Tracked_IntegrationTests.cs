@@ -29,10 +29,10 @@ namespace FinanceApi.Test.Controllers
             var client = _factory.CreateClient();
 
             // Act
-            var response = await client.GetAsync("/api/v1/stock/tracked");
+            var response = await client.GetAsync("api/v1/stock/tracked");
 
             // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.Forbidden, because: "no user is logged in");
+            response.StatusCode.Should().Be(HttpStatusCode.Unauthorized, because: "no user is logged in");
         }
 
         [Fact]

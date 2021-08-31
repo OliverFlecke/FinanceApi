@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 [assembly: InternalsVisibleTo("FinanceApi.Test")]
 
@@ -14,11 +16,25 @@ namespace FinanceApi
 {
     public class Startup
     {
-        // This method gets called by the runtime. Use this method to add services to the container.
-        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
+        readonly IConfiguration configuration;
+
+        public Startup(IConfiguration configuration)
+        {
+            this.configuration = configuration;
+        }
+
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddHttpClient();
+            services
+                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer()
+                .AddGitHub(options =>
+                {
+                    options.UsePkce = true;
+                    options.ClientId = configuration["GitHub:ClientId"];
+                    options.ClientSecret = configuration["GitHub:ClientSecret"];
+                });
 
             services
                 .AddControllers()
@@ -26,6 +42,12 @@ namespace FinanceApi
                 {
                     options.JsonSerializerOptions.AllowTrailingCommas = true;
                 });
+
+            services.AddDbContext<FinanceContext>(options =>
+            {
+                options.UseNpgsql();
+            });
+
             services
                 .AddApiVersioning(options =>
                 {
@@ -38,18 +60,11 @@ namespace FinanceApi
                     options.SubstituteApiVersionInUrl = true;
                     options.GroupNameFormat = "'v'VVV";
                 });
-
             services
                 .AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>()
                 .AddSwaggerGen();
-
-            services.AddDbContext<FinanceContext>(options =>
-            {
-                options.UseNpgsql();
-            });
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())

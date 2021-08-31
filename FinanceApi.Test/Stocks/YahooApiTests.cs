@@ -20,7 +20,7 @@ namespace FinanceApi.Test
             });
 
             // Assert
-            obj.QuoteResponse.Error.Should().Be("Some error");
+            obj!.QuoteResponse!.Error.Should().Be("Some error");
         }
 
         [Fact]
@@ -36,7 +36,7 @@ namespace FinanceApi.Test
             });
 
             // Assert
-            obj.QuoteResponse.Should().NotBeNull();
+            obj!.QuoteResponse.Should().NotBeNull();
         }
     }
 }
