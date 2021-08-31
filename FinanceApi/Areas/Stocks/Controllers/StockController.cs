@@ -1,12 +1,13 @@
 using System;
-using System.Net.Mime;
 using System.Collections.Generic;
+using System.Net.Http;
+using System.Net.Mime;
+using System.Text.Json;
+using System.Threading.Tasks;
 using FinanceApi.Areas.Stocks.Dtos;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System.Net.Http;
-using System.Threading.Tasks;
-using System.Text.Json;
 
 namespace FinanceApi.Areas.Stocks.Controllers
 {
@@ -16,6 +17,11 @@ namespace FinanceApi.Areas.Stocks.Controllers
     public class StockController : ControllerBase
     {
         const string YahooBaseUrl = "https://query2.finance.yahoo.com/v7/finance/quote";
+
+        static readonly JsonSerializerOptions _options = new()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        };
 
         readonly ILogger<StockController> logger;
         readonly IHttpClientFactory clientFactory;
@@ -30,6 +36,8 @@ namespace FinanceApi.Areas.Stocks.Controllers
 
         [HttpGet]
         [Produces(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IList<StockDto>>> GetSymbol([FromQuery] IList<string> symbols)
         {
             this.logger.LogInformation($"Handling request for symbols: {string.Join(", ", symbols)}");
@@ -41,34 +49,21 @@ namespace FinanceApi.Areas.Stocks.Controllers
                 Query = $"symbols={string.Join(",", symbols)}",
             };
             var response = await client.GetAsync(uri.ToString());
+            var content = await response.Content.ReadAsStringAsync();
 
             if (response.IsSuccessStatusCode)
             {
-                var content = await response.Content.ReadAsStringAsync();
-                var yahooResponse = JsonSerializer.Deserialize<YahooResponse>(content, options: new JsonSerializerOptions
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                });
+                var yahooResponse = JsonSerializer.Deserialize<YahooResponse>(content, options: _options);
 
+                if (yahooResponse?.QuoteResponse?.Error is not null) return BadRequest(yahooResponse.QuoteResponse.Error);
                 if (yahooResponse?.QuoteResponse is null) return BadRequest("Unable to retreive quotes for given symbols");
-                if (yahooResponse.QuoteResponse.Error is not null) return BadRequest(yahooResponse.QuoteResponse.Error);
 
                 return Ok(yahooResponse.QuoteResponse.Result);
             }
 
-            return BadRequest();
+            var errorResponse = JsonSerializer.Deserialize<YahooFinanceResponse>(content, options: _options);
+
+            return BadRequest(errorResponse?.Finance?.Error);
         }
-    }
-
-    public class YahooResponse
-    {
-        public QuoteResponse? QuoteResponse { get; set; }
-    }
-
-    public class QuoteResponse
-    {
-        public List<StockDto>? Result { get; set; }
-
-        public string? Error { get; set; }
     }
 }

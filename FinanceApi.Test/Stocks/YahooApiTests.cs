@@ -1,5 +1,5 @@
 using System.Text.Json;
-using FinanceApi.Areas.Stocks.Controllers;
+using FinanceApi.Areas.Stocks.Dtos;
 using FluentAssertions;
 using Xunit;
 

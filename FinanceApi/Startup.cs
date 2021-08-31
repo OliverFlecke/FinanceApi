@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -5,6 +6,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Microsoft.Extensions.Options;
+using Microsoft.EntityFrameworkCore;
+
+[assembly: InternalsVisibleTo("FinanceApi.Test")]
 
 namespace FinanceApi
 {
@@ -38,6 +42,11 @@ namespace FinanceApi
             services
                 .AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>()
                 .AddSwaggerGen();
+
+            services.AddDbContext<FinanceContext>(options =>
+            {
+                options.UseNpgsql();
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

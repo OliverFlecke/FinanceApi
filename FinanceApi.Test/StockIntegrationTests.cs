@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using FinanceApi.Areas.Stocks.Dtos;
 using FluentAssertions;
 using Xunit;
+using System.Net;
 
 namespace FinanceApi.Test
 {
@@ -27,9 +28,13 @@ namespace FinanceApi.Test
             var response = await client.GetAsync("/api/v1/stock");
 
             // Assert
-            response.EnsureSuccessStatusCode();
-            var stocks = JsonSerializer.Deserialize<List<StockDto>>(await response.Content.ReadAsStringAsync());
-            stocks.Should().BeEmpty(because: "no symboles has been provided");
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest, because: "no symbols has been provided");
+            var body = await response.Content.ReadAsStringAsync();
+            var content = JsonSerializer.Deserialize<YahooError>(body, options: new()
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            });
+            content.Description.Should().Be("Missing required query parameter=symbols", because: "no symboles has been provided");
         }
 
         [Fact]
