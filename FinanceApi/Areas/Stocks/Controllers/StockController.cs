@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using System.Linq;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -5,9 +7,11 @@ using System.Net.Mime;
 using System.Text.Json;
 using System.Threading.Tasks;
 using FinanceApi.Areas.Stocks.Dtos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
 
 namespace FinanceApi.Areas.Stocks.Controllers
 {
@@ -25,13 +29,16 @@ namespace FinanceApi.Areas.Stocks.Controllers
 
         readonly ILogger<StockController> logger;
         readonly IHttpClientFactory clientFactory;
+        private readonly FinanceContext context;
 
         public StockController(
             ILogger<StockController> logger,
-            IHttpClientFactory clientFactory)
+            IHttpClientFactory clientFactory,
+            FinanceContext context)
         {
             this.logger = logger;
             this.clientFactory = clientFactory;
+            this.context = context;
         }
 
         [HttpGet]
@@ -64,6 +71,28 @@ namespace FinanceApi.Areas.Stocks.Controllers
             var errorResponse = JsonSerializer.Deserialize<YahooFinanceResponse>(content, options: _options);
 
             return BadRequest(errorResponse?.Finance?.Error);
+        }
+
+
+        [HttpGet("tracked")]
+        [Authorize]
+        [Produces(MediaTypeNames.Application.Json)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult<IList<StockDto>>> GetTracked()
+        {
+            var userId = HttpContext.GetUserId();
+            this.logger.LogInformation($"Getting tracked stocks for {userId}");
+
+            var stocks = await this.context.Stock
+                .Where(x => x.UserId == userId)
+                .ToListAsync();
+            var dtos = stocks.Select(x => new StockDto
+            {
+                Symbol = x.Symbol,
+            });
+
+            return Ok(dtos);
         }
     }
 }
