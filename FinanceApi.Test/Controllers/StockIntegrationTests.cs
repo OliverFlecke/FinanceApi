@@ -6,7 +6,7 @@ using FinanceApi.Areas.Stocks.Dtos;
 using FluentAssertions;
 using Xunit;
 using System.Net;
-using FinanceApi.Test.Utils;
+using FinanceApi.Utils;
 
 namespace FinanceApi.Test
 {

@@ -2,7 +2,7 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace FinanceApi.Test.Utils
+namespace FinanceApi.Utils
 {
     public static class ResponseExtensions
     {

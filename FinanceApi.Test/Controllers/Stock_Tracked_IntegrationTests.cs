@@ -9,9 +9,10 @@ using System.Threading.Tasks;
 using FinanceApi.Areas.Stocks.Dtos;
 using FinanceApi.Areas.Stocks.Models;
 using FinanceApi.Test.Utils;
+using FinanceApi.Utils;
 using FluentAssertions;
-using Xunit;
 using Microsoft.Extensions.DependencyInjection;
+using Xunit;
 
 namespace FinanceApi.Test.Controllers
 {
@@ -98,7 +99,7 @@ namespace FinanceApi.Test.Controllers
         [Fact]
         public async Task AddStockAsTracked_NoUser_Test()
         {
-           var client = _factory.CreateClient();
+            var client = _factory.CreateClient();
 
             // Act
             var response = await client.PostAsync("api/v1/stock/tracked", null!);

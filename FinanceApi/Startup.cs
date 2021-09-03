@@ -68,6 +68,14 @@ namespace FinanceApi
             services
                 .AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>()
                 .AddSwaggerGen();
+
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(policy =>
+                {
+                    policy.AllowAnyOrigin();
+                });
+            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -78,8 +86,12 @@ namespace FinanceApi
             }
 
             app.UseSwagger();
-
             app.UseRouting();
+
+            if (env.IsDevelopment())
+            {
+                app.UseCors();
+            }
 
             app.UseAuthentication();
             app.UseAuthorization();
