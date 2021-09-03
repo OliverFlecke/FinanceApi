@@ -11,7 +11,7 @@ namespace FinanceApi.Test
         public void Deserialize_Error_Test()
         {
             // Arrange
-            var content = "{\"quoteResponse\":{\"result\":[],\"error\":\"Some error\"}}";
+            var content = "{\"quoteResponse\":{\"result\":[],\"error\": { \"code\": \"Some code\", \"description\": \"Some description\" }}}";
 
             // Act
             var obj = JsonSerializer.Deserialize<YahooResponse>(content, new JsonSerializerOptions
@@ -20,7 +20,11 @@ namespace FinanceApi.Test
             });
 
             // Assert
-            obj!.QuoteResponse!.Error.Should().Be("Some error");
+            obj!.QuoteResponse!.Error.Should().BeEquivalentTo(new YahooError()
+            {
+                Code = "Some code",
+                Description = "Some description",
+            });
         }
 
         [Fact]
