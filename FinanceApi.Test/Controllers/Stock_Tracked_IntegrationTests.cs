@@ -1,3 +1,6 @@
+using System.Net.Mime;
+using System.Text;
+using System.Net.Http;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -8,6 +11,7 @@ using FinanceApi.Areas.Stocks.Models;
 using FinanceApi.Test.Utils;
 using FluentAssertions;
 using Xunit;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FinanceApi.Test.Controllers
 {
@@ -89,6 +93,41 @@ namespace FinanceApi.Test.Controllers
             var stocks = await response.DeserializeContent<List<StockDto>>();
             stocks.Should().HaveCount(numberOfTrackedSymbols, because: "user has marked this number of symbols as some they want to track");
             stocks!.Select(x => x.Symbol).Should().BeEquivalentTo(symbols);
+        }
+
+        [Fact]
+        public async Task AddStockAsTracked_NoUser_Test()
+        {
+           var client = _factory.CreateClient();
+
+            // Act
+            var response = await client.PostAsync("api/v1/stock/tracked", null!);
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.Unauthorized, because: "no user is logged in");
+        }
+
+        [Fact]
+        public async Task AddStockAsTracked_Test()
+        {
+            // Arrange
+            var userId = _data.Random.Next();
+            var symbol = _data.String();
+
+            var client = _factory
+                .MockAuth(new() { UserId = userId })
+                .CreateClient();
+
+            // Act
+            var content = new StringContent(symbol, Encoding.UTF8, MediaTypeNames.Text.Plain);
+            var response = await client.PostAsync("api/v1/stock/tracked", content);
+
+            // Assert
+            response.EnsureSuccessStatusCode();
+            var db = _factory.Services.CreateScope().ServiceProvider.GetRequiredService<FinanceContext>();
+            db.Stock.Should().ContainSingle(
+                x => x.UserId == userId && x.Symbol == symbol,
+                because: "this is the symbol which the given user has added");
         }
     }
 }

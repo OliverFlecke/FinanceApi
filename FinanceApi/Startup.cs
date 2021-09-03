@@ -9,6 +9,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using FinanceApi.Extensions;
 
 [assembly: InternalsVisibleTo("FinanceApi.Test")]
 
@@ -37,7 +38,11 @@ namespace FinanceApi
                 });
 
             services
-                .AddControllers()
+                .AddControllers(options =>
+                {
+                    options.RespectBrowserAcceptHeader = true;
+                    options.InputFormatters.Add(new RawRequestBodyFormatter());
+                })
                 .AddJsonOptions(options =>
                 {
                     options.JsonSerializerOptions.AllowTrailingCommas = true;

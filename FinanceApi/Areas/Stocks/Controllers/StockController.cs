@@ -1,3 +1,4 @@
+using System.Net;
 using System.Security.Claims;
 using System.Linq;
 using System;
@@ -29,7 +30,7 @@ namespace FinanceApi.Areas.Stocks.Controllers
 
         readonly ILogger<StockController> logger;
         readonly IHttpClientFactory clientFactory;
-        private readonly FinanceContext context;
+        readonly FinanceContext context;
 
         public StockController(
             ILogger<StockController> logger,
@@ -93,6 +94,24 @@ namespace FinanceApi.Areas.Stocks.Controllers
             });
 
             return Ok(dtos);
+        }
+
+        [HttpPost("tracked")]
+        [Authorize]
+        [Consumes(MediaTypeNames.Text.Plain, MediaTypeNames.Application.Json)]
+        public async Task<ActionResult> AddTrackedStock([FromBody] string symbol)
+        {
+            var userId = HttpContext.GetUserId();
+            logger.LogInformation($"Adding symbol '{symbol}' for user {userId}");
+
+            context.Stock.Add(new()
+            {
+                UserId = userId,
+                Symbol = symbol,
+            });
+            await context.SaveChangesAsync();
+
+            return Ok();
         }
     }
 }
