@@ -1,15 +1,17 @@
+using System;
 using System.Runtime.CompilerServices;
+using FinanceApi.Extensions;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.SwaggerGen;
-using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using FinanceApi.Extensions;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Logging;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 [assembly: InternalsVisibleTo("FinanceApi.Test")]
 
@@ -28,11 +30,10 @@ namespace FinanceApi
         {
             services.AddHttpClient();
             services
-                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer()
+                .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie()
                 .AddGitHub(options =>
                 {
-                    options.UsePkce = true;
                     options.ClientId = configuration["GitHub:ClientId"];
                     options.ClientSecret = configuration["GitHub:ClientSecret"];
                 });
@@ -73,7 +74,9 @@ namespace FinanceApi
             {
                 options.AddDefaultPolicy(policy =>
                 {
-                    policy.AllowAnyOrigin();
+                    policy
+                        .SetIsOriginAllowed(origin => new Uri(origin).Host == "localhost")
+                        .AllowCredentials();
                 });
             });
         }
@@ -83,6 +86,7 @@ namespace FinanceApi
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                IdentityModelEventSource.ShowPII = true;
             }
 
             app.UseSwagger();

@@ -83,7 +83,7 @@ namespace FinanceApi.Areas.Stocks.Controllers
         public async Task<ActionResult<IList<StockDto>>> GetTracked()
         {
             var userId = HttpContext.GetUserId();
-            this.logger.LogInformation($"Getting tracked stocks for {userId}");
+            this.logger.LogInformation($"Getting tracked stocks for user '{userId}'");
 
             var stocks = await this.context.Stock
                 .Where(x => x.UserId == userId)

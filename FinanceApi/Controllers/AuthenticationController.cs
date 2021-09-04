@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Http;
 using FinanceApi.Utils;
+using Microsoft.AspNetCore.Authentication;
 
 namespace FinanceApi.Controllers
 {
@@ -74,6 +75,24 @@ namespace FinanceApi.Controllers
             logger.LogError($"Failed to authenticate user. Reason: {error}");
 
             return BadRequest(error);
+        }
+
+        [HttpGet("~/signin")]
+        public async Task<IActionResult> SignIn(
+            [FromQuery] string? provider = "GitHub",
+            [FromQuery] string? returnUrl = "/")
+        {
+            if (string.IsNullOrWhiteSpace(provider))
+            {
+                return BadRequest();
+            }
+
+            if (!await HttpContext.IsProviderSupportedAsync(provider))
+            {
+                return BadRequest();
+            }
+
+            return Challenge(new AuthenticationProperties { RedirectUri = returnUrl }, provider);
         }
     }
 }
