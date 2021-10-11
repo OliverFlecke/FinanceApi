@@ -2,28 +2,22 @@ using System.Net.Mime;
 using System.Text;
 using System.Net.Http;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Text.Json;
-using System.Threading.Tasks;
 using FinanceApi.Areas.Stocks.Dtos;
 using FinanceApi.Areas.Stocks.Models;
-using FinanceApi.Test.Utils;
 using FinanceApi.Utils;
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 
 namespace FinanceApi.Test.Controllers
 {
-    public class Stock_Tracked_IntegrationTests : IClassFixture<CustomWebApplicationFactory>, IClassFixture<DataGenerator>
+    public class Stock_Tracked_IntegrationTests : IClassFixture<DataGenerator>
     {
-        readonly CustomWebApplicationFactory _factory;
+        readonly CustomWebApplicationFactory _factory = new();
         readonly DataGenerator _data;
 
-        public Stock_Tracked_IntegrationTests(CustomWebApplicationFactory factory, DataGenerator data)
+        public Stock_Tracked_IntegrationTests(DataGenerator data)
         {
-            _factory = factory;
             _data = data;
         }
 
@@ -37,7 +31,7 @@ namespace FinanceApi.Test.Controllers
             var response = await client.GetAsync("api/v1/stock/tracked");
 
             // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.Unauthorized, because: "no user is logged in");
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound, because: "no user is logged in");
         }
 
         [Fact]
@@ -105,7 +99,7 @@ namespace FinanceApi.Test.Controllers
             var response = await client.PostAsync("api/v1/stock/tracked", null!);
 
             // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.Unauthorized, because: "no user is logged in");
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound, because: "no user is logged in");
         }
 
         [Fact]

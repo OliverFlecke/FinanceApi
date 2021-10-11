@@ -1,5 +1,9 @@
-using System;
-using System.Linq;
+global using System;
+global using System.Linq;
+global using System.Threading.Tasks;
+global using FinanceApi.Test.Utils;
+global using FluentAssertions;
+global using Xunit;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.Sqlite;
@@ -8,7 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace FinanceApi.Test
 {
-    public class CustomWebApplicationFactory : WebApplicationFactory<Startup>, IDisposable
+    public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IDisposable
     {
         readonly SqliteConnection _connection = new("DataSource=:memory:");
 
@@ -30,8 +34,11 @@ namespace FinanceApi.Test
 
             builder.ConfigureServices(services =>
             {
-                services.Remove(services.Single(
-                    d => d.ServiceType == typeof(DbContextOptions<FinanceContext>)));
+                if (services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<FinanceContext>)) is var dbContext
+                    && dbContext is not null)
+                {
+                    services.Remove(dbContext);
+                }
 
                 services.AddDbContext<FinanceContext>(builder =>
                 {

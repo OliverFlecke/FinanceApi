@@ -38,6 +38,10 @@ app.UseAuthorization();
 
 app.UseEndpoints(config =>
 {
+    config.MapControllerRoute(
+        name: "areas",
+        pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+
     app.MapControllers();
 });
 
@@ -99,3 +103,5 @@ static void ConfigureServices(WebApplicationBuilder builder)
         });
     });
 }
+
+public partial class Program { }

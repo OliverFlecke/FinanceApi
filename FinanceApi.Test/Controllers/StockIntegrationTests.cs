@@ -1,23 +1,15 @@
-using System;
-using System.Threading.Tasks;
 using System.Text.Json;
 using System.Collections.Generic;
 using FinanceApi.Areas.Stocks.Dtos;
-using FluentAssertions;
-using Xunit;
 using System.Net;
 using FinanceApi.Utils;
 
 namespace FinanceApi.Test
 {
-    public class StockIntegrationTests : IClassFixture<CustomWebApplicationFactory>
+    public class StockIntegrationTests
     {
-        readonly CustomWebApplicationFactory _factory;
+        readonly CustomWebApplicationFactory _factory = new();
 
-        public StockIntegrationTests(CustomWebApplicationFactory factory)
-        {
-            _factory = factory;
-        }
 
         [Fact]
         public async Task GetStockSymbol_NoSymbols_Test()

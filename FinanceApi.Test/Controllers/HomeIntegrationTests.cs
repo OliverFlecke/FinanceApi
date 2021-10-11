@@ -1,22 +1,11 @@
-using System;
-using System.Threading.Tasks;
-using FluentAssertions;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Xunit;
-
 namespace FinanceApi.Test
 {
-    public class HomeIntegrationTests : IClassFixture<CustomWebApplicationFactory>
+    public class HomeIntegrationTests
     {
-        readonly CustomWebApplicationFactory _factory;
-
-        public HomeIntegrationTests(CustomWebApplicationFactory factory)
-        {
-            _factory = factory;
-        }
+        readonly CustomWebApplicationFactory _factory = new();
 
         [Fact]
-        public async Task GetHomeEndpoint()
+        public async Task GET_HomeEndpoint()
         {
             // Arrange
             var client = _factory.CreateClient();

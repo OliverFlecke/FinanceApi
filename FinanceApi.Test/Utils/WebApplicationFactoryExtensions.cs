@@ -1,5 +1,3 @@
-using System;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,10 +19,10 @@ namespace FinanceApi.Test.Utils
             return factory;
         }
 
-        public static WebApplicationFactory<Startup> SetupDatabase<TContext>(
-            this WebApplicationFactory<Startup> factory,
+        public static WebApplicationFactory<Program> SetupDatabase<TContext>(
+            this WebApplicationFactory<Program> factory,
             Func<TContext, Task> configure)
             where TContext : DbContext
-            => SetupDatabase<TContext, Startup>(factory, configure);
+            => SetupDatabase<TContext, Program>(factory, configure);
     }
 }
