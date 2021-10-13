@@ -3,12 +3,13 @@ global using System.Collections.Generic;
 global using System.Linq;
 global using System.Threading.Tasks;
 global using FinanceApi.Extensions;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Logging;
 using FinanceApi;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Logging;
@@ -16,6 +17,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 var builder = WebApplication.CreateBuilder(args);
 ConfigureServices(builder);
+builder.RegisterModules();
 
 var app = builder.Build();
 
@@ -36,14 +38,16 @@ if (app.Environment.IsDevelopment())
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseEndpoints(config =>
-{
-    config.MapControllerRoute(
-        name: "areas",
-        pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+// app.UseEndpoints(config =>
+// {
+//     config.MapControllerRoute(
+//         name: "areas",
+//         pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 
-    app.MapControllers();
-});
+// });
+
+app.MapControllers();
+app.MapEndpoints();
 
 app.Run();
 

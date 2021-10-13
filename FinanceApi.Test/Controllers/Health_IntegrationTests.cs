@@ -1,11 +1,16 @@
 namespace FinanceApi.Test
 {
-    public class HomeIntegrationTests
+    public class Health_IntegrationTests
     {
         readonly CustomWebApplicationFactory _factory = new();
 
+        public Health_IntegrationTests(ITestOutputHelper output)
+        {
+            _factory = new(output);
+        }
+
         [Fact]
-        public async Task GET_HomeEndpoint()
+        public async Task GET_HealthEndpoint()
         {
             // Arrange
             var client = _factory.CreateClient();
@@ -15,7 +20,6 @@ namespace FinanceApi.Test
 
             // Assert
             response.EnsureSuccessStatusCode();
-            (await response.Content.ReadAsStringAsync()).Should().BeEmpty();
         }
     }
 }

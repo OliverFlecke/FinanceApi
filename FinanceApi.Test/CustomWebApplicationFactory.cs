@@ -4,21 +4,26 @@ global using System.Threading.Tasks;
 global using FinanceApi.Test.Utils;
 global using FluentAssertions;
 global using Xunit;
+global using Xunit.Abstractions;
+using FinanceApi.Test.Logging;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace FinanceApi.Test
 {
     public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IDisposable
     {
         readonly SqliteConnection _connection = new("DataSource=:memory:");
+        readonly ITestOutputHelper? _testOutputHelper;
 
-        public CustomWebApplicationFactory()
+        public CustomWebApplicationFactory(ITestOutputHelper? testOutputHelper = null)
         {
             _connection.Open();
+            _testOutputHelper = testOutputHelper;
         }
 
         public virtual new void Dispose()
@@ -31,6 +36,12 @@ namespace FinanceApi.Test
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             base.ConfigureWebHost(builder);
+
+            if (_testOutputHelper is not null)
+            {
+                builder.ConfigureLogging(logBuilder =>
+                    logBuilder.AddProvider(new XUnitLoggerProvider(_testOutputHelper)));
+            }
 
             builder.ConfigureServices(services =>
             {
