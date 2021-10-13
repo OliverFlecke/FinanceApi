@@ -2,13 +2,14 @@ using System.Text.Json;
 using System.Collections.Generic;
 using FinanceApi.Areas.Stocks.Dtos;
 using System.Net;
-using FinanceApi.Utils;
 
 namespace FinanceApi.Test
 {
     public class Stock_IntegrationTests
     {
-        readonly CustomWebApplicationFactory _factory = new();
+        readonly CustomWebApplicationFactory _factory;
+
+        public Stock_IntegrationTests(ITestOutputHelper output) => _factory = new(output);
 
 
         [Fact]
@@ -22,8 +23,6 @@ namespace FinanceApi.Test
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest, because: "no symbols has been provided");
-            var content = await response.DeserializeContent<YahooError>();
-            content!.Description.Should().Be("Missing required query parameter=symbols", because: "no symboles has been provided");
         }
 
         [Fact]

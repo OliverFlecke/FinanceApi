@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
 namespace FinanceApi.Endpoints
@@ -13,6 +13,6 @@ namespace FinanceApi.Endpoints
             return endpoints;
         }
 
-        static IActionResult GetHealth() => new OkResult();
+        static IResult GetHealth() => Results.Ok();
     }
 }

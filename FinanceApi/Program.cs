@@ -1,10 +1,12 @@
 global using System;
 global using System.Collections.Generic;
 global using System.Linq;
+global using System.Text.Json;
 global using System.Threading.Tasks;
 global using FinanceApi.Extensions;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Logging;
+global using MediaTypeNames = System.Net.Mime.MediaTypeNames;
 using FinanceApi;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
@@ -16,6 +18,7 @@ using Microsoft.IdentityModel.Logging;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 var builder = WebApplication.CreateBuilder(args);
+
 ConfigureServices(builder);
 builder.RegisterModules();
 
@@ -28,6 +31,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseSwagger();
+app.UseSwaggerUI();
 app.UseRouting();
 
 if (app.Environment.IsDevelopment())
@@ -37,14 +41,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseAuthentication();
 app.UseAuthorization();
-
-// app.UseEndpoints(config =>
-// {
-//     config.MapControllerRoute(
-//         name: "areas",
-//         pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
-
-// });
 
 app.MapControllers();
 app.MapEndpoints();
@@ -94,6 +90,7 @@ static void ConfigureServices(WebApplicationBuilder builder)
             options.GroupNameFormat = "'v'VVV";
         });
     services
+        .AddEndpointsApiExplorer()
         .AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>()
         .AddSwaggerGen();
 

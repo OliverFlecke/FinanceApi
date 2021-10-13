@@ -1,17 +1,8 @@
-using System.Net;
-using System.Security.Claims;
-using System.Linq;
-using System;
-using System.Collections.Generic;
 using System.Net.Http;
-using System.Net.Mime;
-using System.Text.Json;
-using System.Threading.Tasks;
 using FinanceApi.Areas.Stocks.Dtos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinanceApi.Areas.Stocks.Controllers
@@ -28,29 +19,21 @@ namespace FinanceApi.Areas.Stocks.Controllers
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         };
 
-        readonly ILogger<StockController> logger;
-        readonly IHttpClientFactory clientFactory;
-        readonly FinanceContext context;
+        readonly ILogger<StockController> _logger;
 
-        public StockController(
-            ILogger<StockController> logger,
-            IHttpClientFactory clientFactory,
-            FinanceContext context)
-        {
-            this.logger = logger;
-            this.clientFactory = clientFactory;
-            this.context = context;
-        }
+        public StockController(ILogger<StockController> logger) => _logger = logger;
 
         [HttpGet]
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<IList<StockDto>>> GetSymbol([FromQuery] IList<string> symbols)
+        public async Task<ActionResult<IList<StockDto>>> GetSymbol(
+            [FromQuery] IList<string> symbols,
+            [FromServices] IHttpClientFactory clientFactory)
         {
-            this.logger.LogInformation($"Handling request for symbols: {string.Join(", ", symbols)}");
+            _logger.LogInformation($"Handling request for symbols: {string.Join(", ", symbols)}");
 
-            var client = this.clientFactory.CreateClient();
+            var client = clientFactory.CreateClient();
 
             var uri = new UriBuilder(YahooBaseUrl)
             {
@@ -80,12 +63,12 @@ namespace FinanceApi.Areas.Stocks.Controllers
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<IList<StockDto>>> GetTracked()
+        public async Task<ActionResult<IList<StockDto>>> GetTracked([FromServices] FinanceContext context)
         {
             var userId = HttpContext.GetUserId();
-            this.logger.LogInformation($"Getting tracked stocks for user '{userId}'");
+            _logger.LogInformation($"Getting tracked stocks for user '{userId}'");
 
-            var stocks = await this.context.Stock
+            var stocks = await context.Stock
                 .Where(x => x.UserId == userId)
                 .ToListAsync();
             var dtos = stocks.Select(x => new StockDto
@@ -99,10 +82,10 @@ namespace FinanceApi.Areas.Stocks.Controllers
         [HttpPost("tracked")]
         [Authorize]
         [Consumes(MediaTypeNames.Text.Plain, MediaTypeNames.Application.Json)]
-        public async Task<ActionResult> AddTrackedStock([FromBody] string symbol)
+        public async Task<ActionResult> AddTrackedStock([FromBody] string symbol, [FromServices] FinanceContext context)
         {
             var userId = HttpContext.GetUserId();
-            logger.LogInformation($"Adding symbol '{symbol}' for user {userId}");
+            _logger.LogInformation($"Adding symbol '{symbol}' for user {userId}");
 
             context.Stock.Add(new()
             {

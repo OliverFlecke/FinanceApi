@@ -5,11 +5,13 @@ global using FinanceApi.Test.Utils;
 global using FluentAssertions;
 global using Xunit;
 global using Xunit.Abstractions;
+using System.Collections.Generic;
 using FinanceApi.Test.Logging;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -43,6 +45,15 @@ namespace FinanceApi.Test
                     logBuilder.AddProvider(new XUnitLoggerProvider(_testOutputHelper)));
             }
 
+            builder.ConfigureAppConfiguration((context, config) => {
+                config.AddInMemoryCollection(new Dictionary<string, string>()
+                {
+                    ["GitHub:ClientId"] = "ontueaseou",
+                    ["GitHub:ClientSecret"] = "sntohue",
+                });
+            });
+
+            builder.UseEnvironment("Production");
             builder.ConfigureServices(services =>
             {
                 if (services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<FinanceContext>)) is var dbContext
