@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Builder;
 
 
-namespace FinanceApi
+namespace FinanceApi.Extensions
 {
     static class ModuleExtensions
     {

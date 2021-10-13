@@ -6,7 +6,7 @@ using FinanceApi.Utils;
 
 namespace FinanceApi.Test
 {
-    public class StockIntegrationTests
+    public class Stock_IntegrationTests
     {
         readonly CustomWebApplicationFactory _factory = new();
 
