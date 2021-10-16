@@ -43,7 +43,7 @@ class StockService : IStockService
             if (yahooResponse?.QuoteResponse?.Error is not null) throw new Exception(yahooResponse.QuoteResponse.Error.Description);
             if (yahooResponse?.QuoteResponse is null) throw new Exception("Unable to retreive quotes for given symbols");
 
-            return yahooResponse.QuoteResponse.Result;
+            return yahooResponse?.QuoteResponse?.Result ?? new List<StockResponse>();
         }
 
         var errorResponse = JsonSerializer.Deserialize<YahooFinanceResponse>(content, options: _options);

@@ -1,10 +1,12 @@
+using System.Collections.Concurrent;
 using Microsoft.AspNetCore.Builder;
 
 namespace FinanceApi.Extensions
 {
     static class ModuleExtensions
     {
-        static readonly List<IModule> registeredModules = new();
+        // Using a concurrent bag here to avoid issues when running multiple integration tests
+        static readonly ConcurrentBag<IModule> registeredModules = new();
 
         public static WebApplicationBuilder RegisterModules(this WebApplicationBuilder builder)
         {

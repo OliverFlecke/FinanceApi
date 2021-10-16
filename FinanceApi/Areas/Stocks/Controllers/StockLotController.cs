@@ -33,4 +33,18 @@ public class StockLotController : ControllerBase
 
         return Accepted();
     }
+
+    [HttpPut("{lotId}")]
+    [Authorize]
+    [Consumes(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(StatusCodes.Status202Accepted)]
+    public async Task<ActionResult> Update(
+        [FromRoute] Guid lotId,
+        [FromBody] UpdateStockLotRequest request,
+        [FromServices] IStockLotService service)
+    {
+        await service.UpdateLot(HttpContext.GetUserId(), lotId, request);
+
+        return Accepted();
+    }
 }

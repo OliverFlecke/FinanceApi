@@ -5,6 +5,7 @@ global using FinanceApi.Test.Utils;
 global using FluentAssertions;
 global using Xunit;
 global using Xunit.Abstractions;
+global using Microsoft.EntityFrameworkCore;
 global using Microsoft.Extensions.DependencyInjection;
 global using MediaTypeNames = System.Net.Mime.MediaTypeNames;
 using System.Collections.Generic;
@@ -12,7 +13,6 @@ using FinanceApi.Test.Logging;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 

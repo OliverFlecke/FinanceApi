@@ -28,9 +28,23 @@ public class StockLotService : IStockLotService
             UserId = userId,
             Symbol = request.Symbol,
             BuyDate = request.BuyDate,
+            SoldDate = request.SoldDate,
             Shares = request.Shares,
             Price = request.Price,
         });
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task UpdateLot(int userId, Guid id, UpdateStockLotRequest request)
+    {
+        var entity = await _context.StockLot.FindAsync(id);
+        if (entity is null || entity.UserId != userId) throw new EntityNotFoundException($"Lot with id '{id}' was not found");
+
+        entity.BuyDate = request.BuyDate ?? entity.BuyDate;
+        entity.SoldDate = request.SoldDate ?? entity.SoldDate;
+        entity.Shares = request.Shares ?? entity.Shares;
+        entity.Price = request.Price ?? entity.Price;
+
         await _context.SaveChangesAsync();
     }
 }

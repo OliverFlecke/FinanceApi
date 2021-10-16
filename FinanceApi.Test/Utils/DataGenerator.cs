@@ -24,7 +24,7 @@ namespace FinanceApi.Test.Utils
 
         public DateTime DateTimeAfter(DateTime date) => new(date.Ticks + Random.Next());
 
-        public DateTimeOffset DateTimeOffset => new(Math.Min(Math.Max(0, (long)Ulong()), DateTimeOffset.MaxValue.Ticks), TimeSpan.Zero);
+        public DateTimeOffset DateTimeOffset => new(Random.Next(10_000), TimeSpan.Zero);
 
         public string String(int length = 32) => new(
             Enumerable

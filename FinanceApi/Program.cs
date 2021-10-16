@@ -3,6 +3,7 @@ global using System.Collections.Generic;
 global using System.Linq;
 global using System.Text.Json;
 global using System.Threading.Tasks;
+global using FinanceApi.Exceptions;
 global using FinanceApi.Extensions;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Logging;
@@ -66,6 +67,7 @@ static void ConfigureServices(WebApplicationBuilder builder)
         {
             options.RespectBrowserAcceptHeader = true;
             options.InputFormatters.Add(new RawRequestBodyFormatter());
+            options.Filters.Add(new HttpResponseExceptionFilter());
         })
         .AddJsonOptions(options =>
         {

@@ -40,7 +40,7 @@ namespace FinanceApi.Areas.Stocks.Controllers
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<IList<StockResponse>>> GetTracked([FromServices] IStockRepository service)
+        public ActionResult<IList<StockResponse>> GetTracked([FromServices] IStockRepository service)
         {
             return Ok(service
                 .GetTrackedStocksForUser(HttpContext.GetUserId())
