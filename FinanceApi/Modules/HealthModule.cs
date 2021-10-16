@@ -6,6 +6,8 @@ namespace FinanceApi.Endpoints
 {
     public class HealthModule : IModule
     {
+        public IServiceCollection RegisterModule(IServiceCollection services) => services;
+
         public IEndpointRouteBuilder MapEndpoints(IEndpointRouteBuilder endpoints)
         {
             endpoints.MapGet("/api/v1/", GetHealth);

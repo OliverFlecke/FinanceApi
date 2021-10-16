@@ -1,6 +1,7 @@
 using System.Net.Mime;
 using System.Net.Http;
 using FinanceApi.Areas.Stocks.Dtos;
+using FinanceApi.Areas.Stocks.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -26,19 +27,9 @@ public class StockLotController : ControllerBase
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     public async Task<ActionResult> Post(
         [FromBody] AddStockLotRequest request,
-        [FromServices] FinanceContext context)
+        [FromServices] IStockLotService service)
     {
-        var userId = HttpContext.GetUserId();
-        _logger.LogInformation($"Added stock lot for user '{userId}':\n {request}");
-
-        context.StockLot.Add(new() {
-            UserId = userId,
-            Symbol = request.Symbol,
-            BuyDate = request.BuyDate,
-            Shares = request.Shares,
-            Price = request.Price,
-        });
-        await context.SaveChangesAsync();
+        await service.AddLot(HttpContext.GetUserId(), request);
 
         return Accepted();
     }
