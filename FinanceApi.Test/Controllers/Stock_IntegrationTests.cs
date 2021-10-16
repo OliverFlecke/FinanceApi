@@ -41,7 +41,7 @@ namespace FinanceApi.Test
 
             // Assert
             response.EnsureSuccessStatusCode();
-            var stocks = JsonSerializer.Deserialize<List<StockDto>>(await response.Content.ReadAsStringAsync());
+            var stocks = JsonSerializer.Deserialize<List<StockResponse>>(await response.Content.ReadAsStringAsync());
             stocks.Should().HaveCount(1, because: "we only asked for one symbol");
         }
 
@@ -61,7 +61,7 @@ namespace FinanceApi.Test
 
             // Assert
             response.EnsureSuccessStatusCode();
-            var stocks = JsonSerializer.Deserialize<List<StockDto>>(await response.Content.ReadAsStringAsync());
+            var stocks = JsonSerializer.Deserialize<List<StockResponse>>(await response.Content.ReadAsStringAsync());
             stocks.Should().HaveCount(2, because: "we asked for multiple symbols");
         }
     }

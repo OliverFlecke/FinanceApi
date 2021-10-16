@@ -20,7 +20,7 @@ namespace FinanceApi.Areas.Stocks.Controllers
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<IList<StockDto>>> GetSymbol(
+        public async Task<ActionResult<IList<StockResponse>>> GetSymbol(
             [FromQuery] IList<string> symbols,
             [FromServices] IStockService stockService)
         {
@@ -40,11 +40,11 @@ namespace FinanceApi.Areas.Stocks.Controllers
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<IList<StockDto>>> GetTracked([FromServices] IStockRepository service)
+        public async Task<ActionResult<IList<StockResponse>>> GetTracked([FromServices] IStockRepository service)
         {
             return Ok(service
                 .GetTrackedStocksForUser(HttpContext.GetUserId())
-                .Select(x => new StockDto { Symbol = x.Symbol }));
+                .Select(x => new StockResponse { Symbol = x.Symbol }));
         }
 
         [HttpPost("tracked")]

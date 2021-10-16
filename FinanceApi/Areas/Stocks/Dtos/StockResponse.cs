@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace FinanceApi.Areas.Stocks.Dtos
 {
-    public class StockDto
+    public class StockResponse
     {
 #pragma warning disable CS8618 // Consider declaring the property as nullable.
         [Required]

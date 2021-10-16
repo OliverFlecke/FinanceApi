@@ -10,7 +10,7 @@ namespace FinanceApi.Areas.Stocks.Dtos
 
     class YahooResultResponse
     {
-        public List<StockDto>? Result { get; set; }
+        public List<StockResponse>? Result { get; set; }
 
         public YahooError? Error { get; set; }
     }

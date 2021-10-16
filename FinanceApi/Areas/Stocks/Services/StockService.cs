@@ -23,7 +23,7 @@ class StockService : IStockService
         _clientFactory = clientFactory;
     }
 
-    public async Task<IList<StockDto>> GetSymbols(IEnumerable<string> symbols)
+    public async Task<IList<StockResponse>> GetSymbols(IEnumerable<string> symbols)
     {
         _logger.LogInformation($"Handling request for symbols: {string.Join(", ", symbols)}");
 

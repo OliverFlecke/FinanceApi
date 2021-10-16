@@ -49,7 +49,7 @@ namespace FinanceApi.Test.Controllers
 
             // Assert
             response.EnsureSuccessStatusCode();
-            var stocks = JsonSerializer.Deserialize<List<StockDto>>(await response.Content.ReadAsStringAsync());
+            var stocks = JsonSerializer.Deserialize<List<StockResponse>>(await response.Content.ReadAsStringAsync());
             stocks.Should().BeEmpty(because: "no symbols has been marked as tracked yet");
         }
 
@@ -85,7 +85,7 @@ namespace FinanceApi.Test.Controllers
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var stocks = await response.DeserializeContent<List<StockDto>>();
+            var stocks = await response.DeserializeContent<List<StockResponse>>();
             stocks.Should().HaveCount(numberOfTrackedSymbols, because: "user has marked this number of symbols as some they want to track");
             stocks!.Select(x => x.Symbol).Should().BeEquivalentTo(symbols);
         }
