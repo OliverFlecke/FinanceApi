@@ -7,7 +7,9 @@ public class StockModule : IModule
 {
     public IServiceCollection RegisterModule(IServiceCollection services)
     {
-        services.AddTransient<IStockLotService, StockLotService>();
+        services
+            .AddTransient<IStockRepository, StockRepository>()
+            .AddTransient<IStockLotService, StockLotService>();
 
         return services;
     }

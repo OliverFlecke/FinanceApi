@@ -103,13 +103,45 @@ namespace FinanceApi.Test.Controllers
         }
 
         [Fact]
-        public async Task AddStockAsTracked_Test()
+        public async Task POST_AddTrackedStock_Test()
         {
             // Arrange
             var userId = _data.Random.Next();
             var symbol = _data.String();
 
             var client = _factory
+                .MockAuth(new() { UserId = userId })
+                .CreateClient();
+
+            // Act
+            var content = new StringContent(symbol, Encoding.UTF8, MediaTypeNames.Text.Plain);
+            var response = await client.PostAsync("api/v1/stock/tracked", content);
+
+            // Assert
+            response.EnsureSuccessStatusCode();
+            var db = _factory.Services.CreateScope().ServiceProvider.GetRequiredService<FinanceContext>();
+            db.Stock.Should().ContainSingle(
+                x => x.UserId == userId && x.Symbol == symbol,
+                because: "this is the symbol which the given user has added");
+        }
+
+        [Fact]
+        public async Task POST_AddTrackedStock_WhenStockIsAlreadyTracked_Test()
+        {
+            // Arrange
+            var userId = _data.Random.Next();
+            var symbol = _data.String();
+
+            var client = _factory
+                .SetupDatabase<FinanceContext>(async context =>
+                {
+                    context.Stock.Add(new()
+                    {
+                        UserId = userId,
+                        Symbol = symbol,
+                    });
+                    await context.SaveChangesAsync();
+                })
                 .MockAuth(new() { UserId = userId })
                 .CreateClient();
 

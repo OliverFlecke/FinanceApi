@@ -1,5 +1,6 @@
 using System.Net.Http;
 using FinanceApi.Areas.Stocks.Dtos;
+using FinanceApi.Areas.Stocks.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -63,18 +64,11 @@ namespace FinanceApi.Areas.Stocks.Controllers
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<IList<StockDto>>> GetTracked([FromServices] FinanceContext context)
+        public async Task<ActionResult<IList<StockDto>>> GetTracked([FromServices] IStockRepository service)
         {
-            var userId = HttpContext.GetUserId();
-            _logger.LogInformation($"Getting tracked stocks for user '{userId}'");
-
-            var stocks = await context.Stock
-                .Where(x => x.UserId == userId)
-                .ToListAsync();
-            var dtos = stocks.Select(x => new StockDto
-            {
-                Symbol = x.Symbol,
-            });
+            var dtos = service
+                .GetTrackedStocksForUser(HttpContext.GetUserId())
+                .Select(x => new StockDto { Symbol = x.Symbol });
 
             return Ok(dtos);
         }
@@ -82,17 +76,11 @@ namespace FinanceApi.Areas.Stocks.Controllers
         [HttpPost("tracked")]
         [Authorize]
         [Consumes(MediaTypeNames.Text.Plain, MediaTypeNames.Application.Json)]
-        public async Task<ActionResult> AddTrackedStock([FromBody] string symbol, [FromServices] FinanceContext context)
+        public async Task<ActionResult> AddTrackedStock(
+            [FromBody] string symbol,
+            [FromServices] IStockRepository service)
         {
-            var userId = HttpContext.GetUserId();
-            _logger.LogInformation($"Adding symbol '{symbol}' for user {userId}");
-
-            context.Stock.Add(new()
-            {
-                UserId = userId,
-                Symbol = symbol,
-            });
-            await context.SaveChangesAsync();
+            await service.TrackStock(HttpContext.GetUserId(), symbol);
 
             return Ok();
         }
