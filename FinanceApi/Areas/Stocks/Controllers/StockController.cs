@@ -1,4 +1,3 @@
-using System.Net.Http;
 using FinanceApi.Areas.Stocks.Dtos;
 using FinanceApi.Areas.Stocks.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -13,13 +12,6 @@ namespace FinanceApi.Areas.Stocks.Controllers
     [Route("api/v{version:apiVersion}/stock")]
     public class StockController : ControllerBase
     {
-        const string YahooBaseUrl = "https://query2.finance.yahoo.com/v7/finance/quote";
-
-        static readonly JsonSerializerOptions _options = new()
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        };
-
         readonly ILogger<StockController> _logger;
 
         public StockController(ILogger<StockController> logger) => _logger = logger;
@@ -30,32 +22,16 @@ namespace FinanceApi.Areas.Stocks.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IList<StockDto>>> GetSymbol(
             [FromQuery] IList<string> symbols,
-            [FromServices] IHttpClientFactory clientFactory)
+            [FromServices] IStockService stockService)
         {
-            _logger.LogInformation($"Handling request for symbols: {string.Join(", ", symbols)}");
-
-            var client = clientFactory.CreateClient();
-
-            var uri = new UriBuilder(YahooBaseUrl)
+            try
             {
-                Query = $"symbols={string.Join(",", symbols)}",
-            };
-            var response = await client.GetAsync(uri.ToString());
-            var content = await response.Content.ReadAsStringAsync();
-
-            if (response.IsSuccessStatusCode)
-            {
-                var yahooResponse = JsonSerializer.Deserialize<YahooResponse>(content, options: _options);
-
-                if (yahooResponse?.QuoteResponse?.Error is not null) return BadRequest(yahooResponse.QuoteResponse.Error);
-                if (yahooResponse?.QuoteResponse is null) return BadRequest("Unable to retreive quotes for given symbols");
-
-                return Ok(yahooResponse.QuoteResponse.Result);
+                return Ok(await stockService.GetSymbols(symbols));
             }
-
-            var errorResponse = JsonSerializer.Deserialize<YahooFinanceResponse>(content, options: _options);
-
-            return BadRequest(errorResponse?.Finance?.Error);
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
 
@@ -66,11 +42,9 @@ namespace FinanceApi.Areas.Stocks.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<IList<StockDto>>> GetTracked([FromServices] IStockRepository service)
         {
-            var dtos = service
+            return Ok(service
                 .GetTrackedStocksForUser(HttpContext.GetUserId())
-                .Select(x => new StockDto { Symbol = x.Symbol });
-
-            return Ok(dtos);
+                .Select(x => new StockDto { Symbol = x.Symbol }));
         }
 
         [HttpPost("tracked")]
