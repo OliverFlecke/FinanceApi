@@ -20,9 +20,11 @@ namespace FinanceApi.Test.Utils
 
         public IEnumerable<byte> Bytes => Numbers.Select(x => (byte)x);
 
-        public DateTime DateTime => new(Random.Next());
+        public DateTime DateTime => new(Random.Next(0, 10_000));
 
         public DateTime DateTimeAfter(DateTime date) => new(date.Ticks + Random.Next());
+
+        public DateTimeOffset DateTimeOffset => new(Math.Min(Math.Max(0, (long)Ulong()), DateTimeOffset.MaxValue.Ticks), TimeSpan.Zero);
 
         public string String(int length = 32) => new(
             Enumerable
