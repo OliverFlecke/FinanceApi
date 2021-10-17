@@ -4,6 +4,7 @@ using System.Text;
 using System.Net.Http;
 using System.Text.Json;
 using FinanceApi.Areas.Stocks.Dtos;
+using FinanceApi.Areas.Stocks.Models;
 
 namespace FinanceApi.Test.Controllers;
 
@@ -124,28 +125,28 @@ public class Stock_Lots_IntegrationTests
     {
         // Arrange
         var lotId = _random.Guid();
-        var request = RandomAddStockLotRequest();
-        request.SoldDate = _random.DateTimeOffset;
         var userId = _random.Random.Next();
+        var symbol = _random.String();
+        var request = new UpdateStockLotRequest
+        {
+            Shares = _random.Random.NextDouble(),
+            BuyDate = _random.DateTimeOffset,
+            BuyPrice = _random.Random.NextDouble(),
+            BuyBrokerage = _random.Random.NextDouble(),
+            SoldDate = _random.DateTimeOffset,
+            SoldPrice = _random.Random.NextDouble(),
+            SoldBrokerage = _random.Random.NextDouble(),
+        };
 
         var client = _factory
             .SetupDatabase<FinanceContext>(async context =>
             {
                 context.Stock.Add(new()
                 {
-                    Symbol = request.Symbol,
+                    Symbol = symbol,
                     UserId = userId,
                 });
-                context.StockLot.Add(new()
-                {
-                    Id = lotId,
-                    UserId = userId,
-                    Symbol = request.Symbol,
-                    BuyDate = _random.DateTimeOffset,
-                    SoldDate = _random.DateTimeOffset,
-                    Shares = _random.Random.NextDouble(),
-                    BuyPrice = _random.Random.NextDouble(),
-                });
+                context.StockLot.Add(RandomStockLot(symbol, lotId, userId));
 
                 await context.SaveChangesAsync();
             })
@@ -161,12 +162,10 @@ public class Stock_Lots_IntegrationTests
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
         var context = _factory.Services.CreateScope().ServiceProvider.GetRequiredService<FinanceContext>();
-        var lot = await context.StockLot.SingleAsync(x => x.UserId == userId);
-        lot.Symbol.Should().Be(request.Symbol);
-        lot.BuyDate.Should().Be(request.BuyDate);
-        lot.SoldDate.Should().Be(request.SoldDate);
-        lot.Shares.Should().Be(request.Shares);
-        lot.BuyPrice.Should().Be(request.BuyPrice);
+        context.StockLot.Single(x => x.UserId == userId).Should().BeEquivalentTo(
+            request,
+            options => options.ExcludingMissingMembers(),
+            because: "the entity should be updated with the data from the request");
     }
 
     [Fact]
@@ -174,8 +173,8 @@ public class Stock_Lots_IntegrationTests
     {
         // Arrange
         var lotId = _random.Guid();
-        var request = RandomAddStockLotRequest();
         var userId = _random.Random.Next();
+        var request = RandomAddStockLotRequest();
         var otherUserId = _random.Random.Next();
 
         var client = _factory
@@ -186,16 +185,7 @@ public class Stock_Lots_IntegrationTests
                     Symbol = request.Symbol,
                     UserId = otherUserId,
                 });
-                context.StockLot.Add(new()
-                {
-                    Id = lotId,
-                    UserId = otherUserId,
-                    Symbol = request.Symbol,
-                    BuyDate = _random.DateTimeOffset,
-                    SoldDate = _random.DateTimeOffset,
-                    Shares = _random.Random.NextDouble(),
-                    BuyPrice = _random.Random.NextDouble(),
-                });
+                context.StockLot.Add(RandomStockLot(request.Symbol, lotId, userId));
 
                 await context.SaveChangesAsync();
             })
@@ -219,5 +209,19 @@ public class Stock_Lots_IntegrationTests
         Shares = _random.Random.NextDouble(),
         BuyPrice = _random.Random.NextDouble(),
         BuyBrokerage = _random.Random.NextDouble(),
+    };
+
+    StockLot RandomStockLot(string? symbol = null, Guid? lotId = null, int? userId = null) => new()
+    {
+        Id = lotId ?? _random.Guid(),
+        UserId = userId ?? _random.Random.Next(),
+        Symbol = symbol ?? _random.String(),
+        Shares = _random.Random.NextDouble(),
+        BuyDate = _random.DateTimeOffset,
+        BuyPrice = _random.Random.NextDouble(),
+        BuyBrokerage = _random.Random.NextDouble(),
+        SoldDate = _random.DateTimeOffset,
+        SoldPrice = _random.Random.NextDouble(),
+        SoldBrokerage = _random.Random.NextDouble(),
     };
 }

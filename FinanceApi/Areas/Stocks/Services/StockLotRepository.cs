@@ -27,8 +27,8 @@ public class StockLotRepository : IStockLotRepository
         _context.StockLot.Add(new() {
             UserId = userId,
             Symbol = request.Symbol,
-            BuyDate = request.BuyDate,
             Shares = request.Shares,
+            BuyDate = request.BuyDate,
             BuyPrice = request.BuyPrice,
             BuyBrokerage = request.BuyBrokerage,
             SoldDate = request.SoldDate,
@@ -43,11 +43,13 @@ public class StockLotRepository : IStockLotRepository
         var entity = await _context.StockLot.FindAsync(id);
         if (entity is null || entity.UserId != userId) throw new EntityNotFoundException($"Lot with id '{id}' was not found");
 
-        entity.BuyDate = request.BuyDate ?? entity.BuyDate;
-        entity.SoldDate = request.SoldDate ?? entity.SoldDate;
         entity.Shares = request.Shares ?? entity.Shares;
+        entity.BuyDate = request.BuyDate ?? entity.BuyDate;
         entity.BuyPrice = request.BuyPrice ?? entity.BuyPrice;
         entity.BuyBrokerage = request.BuyBrokerage ?? entity.BuyBrokerage;
+        entity.SoldDate = request.SoldDate ?? entity.SoldDate;
+        entity.SoldPrice = request.SoldPrice ?? entity.SoldPrice;
+        entity.SoldBrokerage = request.SoldBrokerage ?? entity.SoldBrokerage;
 
         await _context.SaveChangesAsync();
     }
