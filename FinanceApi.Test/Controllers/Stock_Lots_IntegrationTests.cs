@@ -202,6 +202,44 @@ public class Stock_Lots_IntegrationTests
         (await response.Content.ReadAsStringAsync()).Should().Be($"Lot with id '{lotId}' was not found");
     }
 
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(10)]
+    [InlineData(50)]
+    public async Task GET_Lots_Test(int amount)
+    {
+        // Arrange
+        var userId = _random.Random.Next();
+        var lots = Enumerable.Range(0, amount)
+            .Select(_ => RandomStockLot(userId: userId))
+            .ToList();
+
+        var client = _factory
+            .SetupDatabase<FinanceContext>(async context =>
+            {
+                context.Stock.AddRange(lots.Select(x => new TrackedStock
+                {
+                    UserId = userId,
+                    Symbol = x.Symbol,
+                }));
+                context.StockLot.AddRange(lots);
+                await context.SaveChangesAsync();
+            })
+            .MockAuth(new() { UserId = userId})
+            .CreateClient();
+
+        // Act
+        var response = await client.GetAsync("api/v1/stock/lot");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var content = await response.Content.ReadAsStringAsync();
+
+        var stocks = await response.DeserializeContent<List<StockLotResponse>>();
+        stocks.Should().BeEquivalentTo(lots, options => options.ExcludingMissingMembers(), because: "this is the lots that has been stored in the database for the given user");
+    }
+
     AddStockLotRequest RandomAddStockLotRequest() => new AddStockLotRequest
     {
         Symbol = _random.String(),

@@ -1,4 +1,5 @@
 using FinanceApi.Areas.Stocks.Dtos;
+using FinanceApi.Areas.Stocks.Models;
 
 namespace FinanceApi.Areas.Stocks.Services;
 
@@ -18,6 +19,13 @@ public class StockLotRepository : IStockLotRepository
         _stockRepository = stockRepository;
     }
 
+    /// <inheritdoc />
+    public IQueryable<StockLot> GetStockLots(int userId)
+    {
+        return _context.StockLot.Where(x => x.UserId == userId);
+    }
+
+    /// <inheritdoc/>
     public async Task AddLot(int userId, AddStockLotRequest request)
     {
         _logger.LogInformation($"Addding stock lot for user '{userId}':\n {request}");
@@ -38,6 +46,7 @@ public class StockLotRepository : IStockLotRepository
         await _context.SaveChangesAsync();
     }
 
+    /// <inheritdoc/>
     public async Task UpdateLot(int userId, Guid id, UpdateStockLotRequest request)
     {
         var entity = await _context.StockLot.FindAsync(id);

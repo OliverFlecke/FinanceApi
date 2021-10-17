@@ -1,14 +1,15 @@
 global using System;
+global using System.Collections.Generic;
 global using System.Linq;
 global using System.Threading.Tasks;
 global using FinanceApi.Test.Utils;
+global using FinanceApi.Utils;
 global using FluentAssertions;
 global using Xunit;
 global using Xunit.Abstractions;
 global using Microsoft.EntityFrameworkCore;
 global using Microsoft.Extensions.DependencyInjection;
 global using MediaTypeNames = System.Net.Mime.MediaTypeNames;
-using System.Collections.Generic;
 using FinanceApi.Test.Logging;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
