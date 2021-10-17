@@ -10,7 +10,7 @@ public class StockModule : IModule
         services
             .AddTransient<IStockRepository, StockRepository>()
             .AddTransient<IStockService, StockService>()
-            .AddTransient<IStockLotService, StockLotService>();
+            .AddTransient<IStockLotRepository, StockLotRepository>();
 
         return services;
     }

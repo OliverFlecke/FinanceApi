@@ -2,14 +2,14 @@ using FinanceApi.Areas.Stocks.Dtos;
 
 namespace FinanceApi.Areas.Stocks.Services;
 
-public class StockLotService : IStockLotService
+public class StockLotRepository : IStockLotRepository
 {
-    readonly ILogger<StockLotService> _logger;
+    readonly ILogger<StockLotRepository> _logger;
     readonly FinanceContext _context;
     private readonly IStockRepository _stockRepository;
 
-    public StockLotService(
-        ILogger<StockLotService> logger,
+    public StockLotRepository(
+        ILogger<StockLotRepository> logger,
         FinanceContext context,
         IStockRepository stockRepository)
     {
@@ -28,9 +28,12 @@ public class StockLotService : IStockLotService
             UserId = userId,
             Symbol = request.Symbol,
             BuyDate = request.BuyDate,
-            SoldDate = request.SoldDate,
             Shares = request.Shares,
-            Price = request.Price,
+            BuyPrice = request.BuyPrice,
+            BuyBrokerage = request.BuyBrokerage,
+            SoldDate = request.SoldDate,
+            SoldPrice = request.SoldPrice,
+            SoldBrokerage = request.SoldBrokerage,
         });
         await _context.SaveChangesAsync();
     }
@@ -43,7 +46,8 @@ public class StockLotService : IStockLotService
         entity.BuyDate = request.BuyDate ?? entity.BuyDate;
         entity.SoldDate = request.SoldDate ?? entity.SoldDate;
         entity.Shares = request.Shares ?? entity.Shares;
-        entity.Price = request.Price ?? entity.Price;
+        entity.BuyPrice = request.BuyPrice ?? entity.BuyPrice;
+        entity.BuyBrokerage = request.BuyBrokerage ?? entity.BuyBrokerage;
 
         await _context.SaveChangesAsync();
     }

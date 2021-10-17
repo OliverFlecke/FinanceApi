@@ -27,7 +27,7 @@ public class StockLotController : ControllerBase
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     public async Task<ActionResult> Post(
         [FromBody] AddStockLotRequest request,
-        [FromServices] IStockLotService service)
+        [FromServices] IStockLotRepository service)
     {
         await service.AddLot(HttpContext.GetUserId(), request);
 
@@ -41,7 +41,7 @@ public class StockLotController : ControllerBase
     public async Task<ActionResult> Update(
         [FromRoute] Guid lotId,
         [FromBody] UpdateStockLotRequest request,
-        [FromServices] IStockLotService service)
+        [FromServices] IStockLotRepository service)
     {
         await service.UpdateLot(HttpContext.GetUserId(), lotId, request);
 

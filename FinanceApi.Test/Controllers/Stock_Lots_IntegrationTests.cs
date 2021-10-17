@@ -41,13 +41,11 @@ public class Stock_Lots_IntegrationTests
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
         var context = _factory.Services.CreateScope().ServiceProvider.GetRequiredService<FinanceContext>();
-        context.StockLot.Should().ContainSingle(x =>
-            x.UserId == userId
-            && x.Symbol == request.Symbol
-            && x.BuyDate == request.BuyDate
-            && x.Shares == request.Shares
-            && x.Price == request.Price,
-            because: "the lot should have been persisted to the database");
+        context.StockLot.Single(x => x.UserId == userId).Should()
+            .BeEquivalentTo(
+                request,
+                options => options.ExcludingMissingMembers(),
+                because: "the lot should have been persisted to the database");
     }
 
     [Fact]
@@ -67,21 +65,21 @@ public class Stock_Lots_IntegrationTests
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
         var context = _factory.Services.CreateScope().ServiceProvider.GetRequiredService<FinanceContext>();
-        context.StockLot.Should().ContainSingle(x =>
-            x.UserId == userId
-            && x.Symbol == request.Symbol
-            && x.BuyDate == request.BuyDate
-            && x.Shares == request.Shares
-            && x.Price == request.Price,
-            because: "the lot should have been persisted to the database");
+        context.StockLot.Single(x => x.UserId == userId).Should()
+            .BeEquivalentTo(
+                request,
+                options => options.ExcludingMissingMembers(),
+                because: "the lot should have been persisted to the database");
     }
 
     [Fact]
-    public async Task POST_StockLot_WithSoldDate_Test()
+    public async Task POST_StockLot_WithSoldData_Test()
     {
         var userId = _random.Random.Next();
         var request = RandomAddStockLotRequest();
         request.SoldDate = request.BuyDate + TimeSpan.FromDays(1);
+        request.SoldPrice = _random.Random.NextDouble();
+        request.SoldBrokerage = _random.Random.NextDouble();
         var client = _factory
             .MockAuth(new() { UserId = userId })
             .CreateClient();
@@ -94,13 +92,9 @@ public class Stock_Lots_IntegrationTests
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
         var context = _factory.Services.CreateScope().ServiceProvider.GetRequiredService<FinanceContext>();
-        context.StockLot.Should().ContainSingle(x =>
-            x.UserId == userId
-            && x.Symbol == request.Symbol
-            && x.BuyDate == request.BuyDate
-            && x.SoldDate == request.SoldDate
-            && x.Shares == request.Shares
-            && x.Price == request.Price,
+        context.StockLot.Single(x => x.UserId == userId).Should().BeEquivalentTo(
+            request,
+            options => options.ExcludingMissingMembers(),
             because: "the lot should have been persisted to the database");
     }
 
@@ -150,7 +144,7 @@ public class Stock_Lots_IntegrationTests
                     BuyDate = _random.DateTimeOffset,
                     SoldDate = _random.DateTimeOffset,
                     Shares = _random.Random.NextDouble(),
-                    Price = _random.Random.NextDouble(),
+                    BuyPrice = _random.Random.NextDouble(),
                 });
 
                 await context.SaveChangesAsync();
@@ -172,7 +166,7 @@ public class Stock_Lots_IntegrationTests
         lot.BuyDate.Should().Be(request.BuyDate);
         lot.SoldDate.Should().Be(request.SoldDate);
         lot.Shares.Should().Be(request.Shares);
-        lot.Price.Should().Be(request.Price);
+        lot.BuyPrice.Should().Be(request.BuyPrice);
     }
 
     [Fact]
@@ -200,7 +194,7 @@ public class Stock_Lots_IntegrationTests
                     BuyDate = _random.DateTimeOffset,
                     SoldDate = _random.DateTimeOffset,
                     Shares = _random.Random.NextDouble(),
-                    Price = _random.Random.NextDouble(),
+                    BuyPrice = _random.Random.NextDouble(),
                 });
 
                 await context.SaveChangesAsync();
@@ -223,6 +217,7 @@ public class Stock_Lots_IntegrationTests
         Symbol = _random.String(),
         BuyDate = _random.DateTimeOffset,
         Shares = _random.Random.NextDouble(),
-        Price = _random.Random.NextDouble(),
+        BuyPrice = _random.Random.NextDouble(),
+        BuyBrokerage = _random.Random.NextDouble(),
     };
 }

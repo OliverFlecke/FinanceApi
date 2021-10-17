@@ -2,7 +2,7 @@ using FinanceApi.Areas.Stocks.Dtos;
 
 namespace FinanceApi.Areas.Stocks.Services;
 
-public interface IStockLotService
+public interface IStockLotRepository
 {
     Task AddLot(int userId, AddStockLotRequest request);
 
