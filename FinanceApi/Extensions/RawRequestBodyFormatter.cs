@@ -1,6 +1,4 @@
 using System.IO;
-using System.Net.Mime;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using MediaTypeHeaderValue = Microsoft.Net.Http.Headers.MediaTypeHeaderValue;
 

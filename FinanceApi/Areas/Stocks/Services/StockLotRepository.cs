@@ -26,13 +26,13 @@ public class StockLotRepository : IStockLotRepository
     }
 
     /// <inheritdoc/>
-    public async Task AddLot(int userId, AddStockLotRequest request)
+    public async Task<Guid> AddLot(int userId, AddStockLotRequest request)
     {
         _logger.LogInformation($"Addding stock lot for user '{userId}':\n {request}");
 
         await _stockRepository.TrackStock(userId, request.Symbol);
 
-        _context.StockLot.Add(new() {
+        var lot = _context.StockLot.Add(new() {
             UserId = userId,
             Symbol = request.Symbol,
             Shares = request.Shares,
@@ -44,6 +44,8 @@ public class StockLotRepository : IStockLotRepository
             SoldBrokerage = request.SoldBrokerage,
         });
         await _context.SaveChangesAsync();
+
+        return lot.Entity.Id;
     }
 
     /// <inheritdoc/>

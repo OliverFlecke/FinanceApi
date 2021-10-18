@@ -38,7 +38,8 @@ public class Stock_Lots_IntegrationTests
         var response = await client.PostAsync("api/v1/stock/lot", content);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Accepted);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        (await response.DeserializeContent<Guid>()).Should().NotBeEmpty();
 
         var context = _factory.Services.CreateScope().ServiceProvider.GetRequiredService<FinanceContext>();
         context.StockLot.Single(x => x.UserId == userId).Should()
@@ -58,11 +59,13 @@ public class Stock_Lots_IntegrationTests
             .CreateClient();
 
         var content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, MediaTypeNames.Application.Json);
+
         // Act
         var response = await client.PostAsync("api/v1/stock/lot", content);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Accepted);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        (await response.DeserializeContent<Guid>()).Should().NotBeEmpty();
 
         var context = _factory.Services.CreateScope().ServiceProvider.GetRequiredService<FinanceContext>();
         context.StockLot.Single(x => x.UserId == userId).Should()
@@ -89,7 +92,8 @@ public class Stock_Lots_IntegrationTests
         var response = await client.PostAsync("api/v1/stock/lot", content);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Accepted);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        (await response.DeserializeContent<Guid>()).Should().NotBeEmpty();
 
         var context = _factory.Services.CreateScope().ServiceProvider.GetRequiredService<FinanceContext>();
         context.StockLot.Single(x => x.UserId == userId).Should().BeEquivalentTo(

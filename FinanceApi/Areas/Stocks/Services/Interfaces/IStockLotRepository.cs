@@ -7,7 +7,7 @@ public interface IStockLotRepository
 {
     IQueryable<StockLot> GetStockLots(int userId);
 
-    Task AddLot(int userId, AddStockLotRequest request);
+    Task<Guid> AddLot(int userId, AddStockLotRequest request);
 
     Task UpdateLot(int userId, Guid id, UpdateStockLotRequest request);
 }

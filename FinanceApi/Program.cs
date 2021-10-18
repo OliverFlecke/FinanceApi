@@ -103,6 +103,8 @@ static void ConfigureServices(WebApplicationBuilder builder)
         {
             policy
                 .SetIsOriginAllowed(origin => new Uri(origin).Host == "localhost")
+                .AllowAnyHeader()
+                .AllowAnyMethod()
                 .AllowCredentials();
         });
     });

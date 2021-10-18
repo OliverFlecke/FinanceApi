@@ -1,3 +1,4 @@
+using System.Net.Mime;
 using FinanceApi.Areas.Stocks.Dtos;
 using FinanceApi.Areas.Stocks.Extensions;
 using FinanceApi.Areas.Stocks.Services;
@@ -26,14 +27,13 @@ public class StockLotController : ControllerBase
     [HttpPost]
     [Authorize]
     [Consumes(MediaTypeNames.Application.Json)]
+    [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
-    public async Task<ActionResult> Post(
+    public async Task<ActionResult<Guid>> Post(
         [FromBody] AddStockLotRequest request,
         [FromServices] IStockLotRepository service)
     {
-        await service.AddLot(HttpContext.GetUserId(), request);
-
-        return Accepted();
+        return Ok(await service.AddLot(HttpContext.GetUserId(), request));
     }
 
     [HttpPut("{lotId}")]
