@@ -1,12 +1,9 @@
-using System.Net.Mime;
-using System.Net.Http;
 using FinanceApi.Areas.Stocks.Dtos;
 using FinanceApi.Areas.Stocks.Extensions;
 using FinanceApi.Areas.Stocks.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace FinanceApi.Areas.Stocks.Controllers;
 
@@ -15,13 +12,6 @@ namespace FinanceApi.Areas.Stocks.Controllers;
 [Route("api/v{version:apiVersion}/stock/lot")]
 public class StockLotController : ControllerBase
 {
-    readonly ILogger<StockLotController> _logger;
-
-    public StockLotController(ILogger<StockLotController> logger)
-    {
-        _logger = logger;
-    }
-
     [HttpGet]
     [Authorize]
     [Produces(MediaTypeNames.Application.Json)]
