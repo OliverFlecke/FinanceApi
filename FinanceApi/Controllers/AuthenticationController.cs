@@ -1,98 +1,105 @@
 using System.Text;
 using System.Net.Http;
-using System.Net.Mime;
-using System.Text.Json;
-using System.Threading.Tasks;
 using FinanceApi.Dtos;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Http;
 using FinanceApi.Utils;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 
-namespace FinanceApi.Controllers
+namespace FinanceApi.Controllers;
+
+[ApiController]
+[ApiVersion("1.0")]
+public class AuthenticationController : ControllerBase
 {
-    [ApiController]
-    [ApiVersion("1.0")]
-    public class AuthenticationController : ControllerBase
+    const string GITHUB_AUTH_ACCESSTOKEN_URL = "https://github.com/login/oauth/access_token/";
+
+    readonly ILogger<AuthenticationController> _logger;
+    readonly IHttpClientFactory _httpClientFactory;
+    readonly IConfiguration _configuration;
+
+    public AuthenticationController(
+        ILogger<AuthenticationController> logger,
+        IHttpClientFactory httpClientFactory,
+        IConfiguration configuration)
     {
-        const string GITHUB_AUTH_ACCESSTOKEN_URL = "https://github.com/login/oauth/access_token/";
+        _logger = logger;
+        _httpClientFactory = httpClientFactory;
+        _configuration = configuration;
+    }
 
-        readonly ILogger<AuthenticationController> logger;
-        readonly IHttpClientFactory httpClientFactory;
-        readonly IConfiguration configuration;
+    [HttpGet("/me")]
+    [Authorize]
+    public ActionResult Get()
+    {
+        _logger.LogInformation($"Logged in user: '{HttpContext.GetUserId()}'");
 
-        public AuthenticationController(
-            ILogger<AuthenticationController> logger,
-            IHttpClientFactory httpClientFactory,
-            IConfiguration configuration)
+        return NoContent();
+    }
+
+    [HttpGet("~/signin")]
+    public async Task<IActionResult> SignIn(
+        [FromQuery] string? provider = "GitHub",
+        [FromQuery] string? redirect_uri = "/")
+    {
+        if (string.IsNullOrWhiteSpace(provider))
         {
-            this.logger = logger;
-            this.httpClientFactory = httpClientFactory;
-            this.configuration = configuration;
+            return BadRequest();
         }
 
-        [HttpPost("/authorize")]
-        [Produces(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<AuthorizeResponse>> Authorize([FromQuery] string code)
+        if (!await HttpContext.IsProviderSupportedAsync(provider))
         {
-            /* Testing this endpoint has to be done with End-to-end testing manually.
-             * It requires a user to complete the full loging flow through Github */
-
-            logger.LogInformation("Authorizing user");
-
-            var client = httpClientFactory.CreateClient();
-
-            var request = new HttpRequestMessage
-            {
-                Method = HttpMethod.Post,
-                RequestUri = new(GITHUB_AUTH_ACCESSTOKEN_URL),
-            };
-            request.Headers.Add("Accept", MediaTypeNames.Application.Json);
-
-            var content = new
-            {
-                code,
-                client_id = configuration["Github:ClientId"],
-                client_secret = configuration["Github:ClientSecret"],
-            };
-            request.Content = new StringContent(JsonSerializer.Serialize(content), Encoding.UTF8, MediaTypeNames.Application.Json);
-
-            var response = await client.SendAsync(request);
-
-            if (response.IsSuccessStatusCode)
-            {
-                logger.LogInformation("User authenticated successfully");
-                var auth = await response.DeserializeContent<AuthorizeResponse>();
-
-                return Ok(auth);
-            }
-
-            var error = await response.Content.ReadAsStringAsync();
-            logger.LogError($"Failed to authenticate user. Reason: {error}");
-
-            return BadRequest(error);
+            return BadRequest();
         }
 
-        [HttpGet("~/signin")]
-        public async Task<IActionResult> SignIn(
-            [FromQuery] string? provider = "GitHub",
-            [FromQuery] string? returnUrl = "/")
+        _logger.LogInformation($"Signing in user through {provider}. Redirect uri: {redirect_uri}");
+
+        return Challenge(new AuthenticationProperties { RedirectUri = redirect_uri }, provider);
+    }
+
+    [HttpPost("/signin-github")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<AuthorizeResponse>> Authorize([FromQuery] string code)
+    {
+        /* Testing this endpoint has to be done with End-to-end testing manually.
+            * It requires a user to complete the full loging flow through Github */
+
+        _logger.LogInformation("Authorizing user");
+
+        var client = _httpClientFactory.CreateClient();
+
+        var request = new HttpRequestMessage
         {
-            if (string.IsNullOrWhiteSpace(provider))
-            {
-                return BadRequest();
-            }
+            Method = HttpMethod.Post,
+            RequestUri = new(GITHUB_AUTH_ACCESSTOKEN_URL),
+        };
+        request.Headers.Add("Accept", MediaTypeNames.Application.Json);
 
-            if (!await HttpContext.IsProviderSupportedAsync(provider))
-            {
-                return BadRequest();
-            }
+        var content = new
+        {
+            code,
+            client_id = _configuration["Github:ClientId"],
+            client_secret = _configuration["Github:ClientSecret"],
+        };
+        request.Content = new StringContent(JsonSerializer.Serialize(content), Encoding.UTF8, MediaTypeNames.Application.Json);
 
-            return Challenge(new AuthenticationProperties { RedirectUri = returnUrl }, provider);
+        var response = await client.SendAsync(request);
+
+        if (response.IsSuccessStatusCode)
+        {
+            _logger.LogInformation("User authenticated successfully");
+            var auth = await response.DeserializeContent<AuthorizeResponse>();
+
+            return Ok(auth);
         }
+
+        var error = await response.Content.ReadAsStringAsync();
+        _logger.LogError($"Failed to authenticate user. Reason: {error}");
+
+        return BadRequest(error);
     }
 }

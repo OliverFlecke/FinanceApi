@@ -16,6 +16,12 @@ namespace FinanceApi
 
         public DbSet<StockLot> StockLot { get; set; }
 
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            base.OnConfiguring(optionsBuilder
+                .UseSnakeCaseNamingConvention());
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

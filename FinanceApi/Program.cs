@@ -76,7 +76,8 @@ static void ConfigureServices(WebApplicationBuilder builder)
 
     services.AddDbContext<FinanceContext>(options =>
     {
-        options.UseNpgsql();
+        var config = builder.Configuration;
+        options.UseNpgsql($"host={config["DB:Host"]};database={config["DB:Database"]};user id={config["DB:User"]};password={config["DB:Password"]}");
     });
 
     services
