@@ -43,10 +43,22 @@ public class StockLotController : ControllerBase
     public async Task<ActionResult> Update(
         [FromRoute] Guid lotId,
         [FromBody] UpdateStockLotRequest request,
-        [FromServices] IStockLotRepository service)
+        [FromServices] IStockLotRepository repository)
     {
-        await service.UpdateLot(HttpContext.GetUserId(), lotId, request);
+        await repository.UpdateLot(HttpContext.GetUserId(), lotId, request);
 
         return Accepted();
+    }
+
+    [HttpDelete("{lotId}")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult> Delete(
+        [FromRoute] Guid lotId,
+        [FromServices] IStockLotRepository repository)
+    {
+        await repository.DeleteLot(HttpContext.GetUserId(), lotId);
+
+        return Ok();
     }
 }

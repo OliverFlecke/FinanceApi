@@ -243,6 +243,95 @@ public class Stock_Lots_IntegrationTests
         stocks.Should().BeEquivalentTo(lots, options => options.ExcludingMissingMembers(), because: "this is the lots that has been stored in the database for the given user");
     }
 
+    [Fact]
+    public async Task DELETE_StockLot_Test()
+    {
+        // Arrange
+        var userId = _random.Random.Next();
+        var id = _random.Guid();
+
+        var client = _factory
+            .SetupDatabase<FinanceContext>(async context =>
+            {
+                var symbol = _random.String();
+                context.Stock.Add(new()
+                {
+                    UserId = userId,
+                    Symbol = symbol,
+                });
+                context.StockLot.Add(RandomStockLot(symbol, id, userId));
+                await context.SaveChangesAsync();
+            })
+            .MockAuth(new() { UserId = userId })
+            .CreateClient();
+
+        // Act
+        var response = await client.DeleteAsync($"api/v1/stock/lot/{id}");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var context = _factory.Services.CreateScope().ServiceProvider.GetRequiredService<FinanceContext>();
+        context.StockLot.Where(x => x.UserId == userId).Should().BeEmpty(because: "all lots have been deleted");
+    }
+
+    [Fact]
+    public async Task DELETE_LotNotFound_Test()
+    {
+        // Arrange
+        var userId = _random.Random.Next();
+        var id = _random.Guid();
+
+        var client = _factory
+            .MockAuth(new() { UserId = userId })
+            .CreateClient();
+
+        // Act
+        var response = await client.DeleteAsync($"api/v1/stock/lot/{id}");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        (await response.Content.ReadAsStringAsync()).Should().Be($"Lot with id '{id}' was not found");
+
+        var context = _factory.Services.CreateScope().ServiceProvider.GetRequiredService<FinanceContext>();
+        context.StockLot.Where(x => x.UserId == userId).Should().BeEmpty(because: "no lots have every been in the database for the current user");
+    }
+
+    [Fact]
+    public async Task DELETE_LotIsAnotherUsers_Test()
+    {
+        // Arrange
+        var userId = _random.Random.Next();
+        var id = _random.Guid();
+
+        var client = _factory
+            .SetupDatabase<FinanceContext>(async context =>
+            {
+                var symbol = _random.String();
+                var otherUser = _random.Random.Next();
+                context.Stock.Add(new()
+                {
+                    UserId = otherUser,
+                    Symbol = symbol,
+                });
+                context.StockLot.Add(RandomStockLot(symbol, id, otherUser));
+                await context.SaveChangesAsync();
+            })
+            .MockAuth(new() { UserId = userId })
+            .CreateClient();
+
+        // Act
+        var response = await client.DeleteAsync($"api/v1/stock/lot/{id}");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        (await response.Content.ReadAsStringAsync()).Should().Be($"Lot with id '{id}' was not found");
+
+        var context = _factory.Services.CreateScope().ServiceProvider.GetRequiredService<FinanceContext>();
+        context.StockLot.Where(x => x.UserId == userId).Should().BeEmpty(because: "no lots have been added for the current user");
+
+    }
+
     AddStockLotRequest RandomAddStockLotRequest() => new AddStockLotRequest
     {
         Symbol = _random.String(),

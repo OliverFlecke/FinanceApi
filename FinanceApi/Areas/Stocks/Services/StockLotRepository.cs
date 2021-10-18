@@ -3,7 +3,7 @@ using FinanceApi.Areas.Stocks.Models;
 
 namespace FinanceApi.Areas.Stocks.Services;
 
-public class StockLotRepository : IStockLotRepository
+class StockLotRepository : IStockLotRepository
 {
     readonly ILogger<StockLotRepository> _logger;
     readonly FinanceContext _context;
@@ -61,6 +61,17 @@ public class StockLotRepository : IStockLotRepository
         entity.SoldDate = request.SoldDate ?? entity.SoldDate;
         entity.SoldPrice = request.SoldPrice ?? entity.SoldPrice;
         entity.SoldBrokerage = request.SoldBrokerage ?? entity.SoldBrokerage;
+
+        await _context.SaveChangesAsync();
+    }
+
+    /// <inheritdoc/>
+    public async Task DeleteLot(int userId, Guid lotId)
+    {
+        var entity = await _context.StockLot.FindAsync(lotId);
+        if (entity is null || entity.UserId != userId) throw new EntityNotFoundException($"Lot with id '{lotId}' was not found");
+
+        _context.StockLot.Remove(entity);
 
         await _context.SaveChangesAsync();
     }

@@ -10,4 +10,6 @@ public interface IStockLotRepository
     Task<Guid> AddLot(int userId, AddStockLotRequest request);
 
     Task UpdateLot(int userId, Guid id, UpdateStockLotRequest request);
+
+    Task DeleteLot(int userId, Guid lotId);
 }
