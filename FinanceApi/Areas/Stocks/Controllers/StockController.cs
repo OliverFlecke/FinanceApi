@@ -1,4 +1,5 @@
 using FinanceApi.Areas.Stocks.Dtos;
+using FinanceApi.Areas.Stocks.Extensions;
 using FinanceApi.Areas.Stocks.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -44,9 +45,14 @@ namespace FinanceApi.Areas.Stocks.Controllers
         {
             var stocks = await service
                 .GetTrackedStocksForUser(HttpContext.GetUserId())
+                .Include(s => s.Lots)
                 .ToListAsync();
 
-            return Ok(stocks.Select(x => new StockResponse { Symbol = x.Symbol }));
+            return Ok(stocks.Select(x => new StockResponse
+                {
+                    Symbol = x.Symbol,
+                    Lots = x.Lots?.Select(lot => lot.ToStockLotResponse()).ToList() ?? new List<StockLotResponse>(),
+                }));
         }
 
         [HttpPost("tracked")]

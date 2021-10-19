@@ -8,6 +8,8 @@ namespace FinanceApi.Areas.Stocks.Dtos
         [Required]
         public string Symbol { get; set; }
 
+        public IList<StockLotResponse> Lots { get; set; } = new List<StockLotResponse>();
+
         public string Language { get; set; }
         public string Region { get; set; }
         public string QuoteType { get; set; }

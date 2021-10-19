@@ -1,4 +1,3 @@
-using System.Net.Mime;
 using FinanceApi.Areas.Stocks.Dtos;
 using FinanceApi.Areas.Stocks.Extensions;
 using FinanceApi.Areas.Stocks.Services;
