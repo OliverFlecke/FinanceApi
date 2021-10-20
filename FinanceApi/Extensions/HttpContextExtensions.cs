@@ -1,10 +1,6 @@
-using System;
-using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace FinanceApi
 {
@@ -15,6 +11,11 @@ namespace FinanceApi
             var claim = context.User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier);
 
             return int.Parse(claim.Value);
+        }
+
+        public static string? GetUsername(this HttpContext context)
+        {
+            return context.User.Identity?.Name;
         }
 
         public static async Task<AuthenticationScheme[]> GetExternalProvidersAsync(this HttpContext context)

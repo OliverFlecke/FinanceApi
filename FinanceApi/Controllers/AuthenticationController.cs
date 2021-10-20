@@ -1,12 +1,11 @@
 using System.Text;
 using System.Net.Http;
 using FinanceApi.Dtos;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.AspNetCore.Http;
 using FinanceApi.Utils;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 
 namespace FinanceApi.Controllers;
 
@@ -30,19 +29,10 @@ public class AuthenticationController : ControllerBase
         _configuration = configuration;
     }
 
-    [HttpGet("/me")]
-    [Authorize]
-    public ActionResult Get()
-    {
-        _logger.LogInformation($"Logged in user: '{HttpContext.GetUserId()}'");
-
-        return NoContent();
-    }
-
     [HttpGet("~/signin")]
     public async Task<IActionResult> SignIn(
         [FromQuery] string? provider = "GitHub",
-        [FromQuery] string? redirect_uri = "/")
+        [FromQuery] string? returnUrl = "/")
     {
         if (string.IsNullOrWhiteSpace(provider))
         {
@@ -54,9 +44,9 @@ public class AuthenticationController : ControllerBase
             return BadRequest();
         }
 
-        _logger.LogInformation($"Signing in user through {provider}. Redirect uri: {redirect_uri}");
+        _logger.LogInformation($"Signing in user through {provider}. Redirect uri: {returnUrl}");
 
-        return Challenge(new AuthenticationProperties { RedirectUri = redirect_uri }, provider);
+        return Challenge(new AuthenticationProperties { RedirectUri = returnUrl }, provider);
     }
 
     [HttpPost("/signin-github")]

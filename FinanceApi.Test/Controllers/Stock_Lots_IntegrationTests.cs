@@ -332,7 +332,7 @@ public class Stock_Lots_IntegrationTests
 
     }
 
-    AddStockLotRequest RandomAddStockLotRequest() => new AddStockLotRequest
+    AddStockLotRequest RandomAddStockLotRequest() => new()
     {
         Symbol = _random.String(),
         BuyDate = _random.DateTimeOffset,

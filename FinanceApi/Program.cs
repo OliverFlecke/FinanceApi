@@ -9,6 +9,7 @@ global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Logging;
 global using MediaTypeNames = System.Net.Mime.MediaTypeNames;
 using FinanceApi;
+using FinanceApi.Options;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
@@ -51,6 +52,8 @@ app.Run();
 static void ConfigureServices(WebApplicationBuilder builder)
 {
     var services = builder.Services;
+
+    services.Configure<GithubOptions>(builder.Configuration.GetSection(GithubOptions.Github));
 
     services.AddHttpClient();
     services
@@ -110,4 +113,6 @@ static void ConfigureServices(WebApplicationBuilder builder)
     });
 }
 
+#pragma warning disable CA1050
 public partial class Program { }
+#pragma warning restore CA1050

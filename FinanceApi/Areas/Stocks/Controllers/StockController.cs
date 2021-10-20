@@ -13,10 +13,6 @@ namespace FinanceApi.Areas.Stocks.Controllers
     [Route("api/v{version:apiVersion}/stock")]
     public class StockController : ControllerBase
     {
-        readonly ILogger<StockController> _logger;
-
-        public StockController(ILogger<StockController> logger) => _logger = logger;
-
         [HttpGet]
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status200OK)]
