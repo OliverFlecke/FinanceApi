@@ -1,5 +1,3 @@
-using System;
-
 namespace FinanceApi.Areas.Stocks.Models
 {
     public class StockLot

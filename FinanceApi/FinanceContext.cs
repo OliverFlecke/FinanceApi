@@ -34,9 +34,10 @@ namespace FinanceApi
             modelBuilder.Entity<StockLot>(entity =>
             {
                 entity
-                    .HasOne(x => x.TrackedSymbol)
-                    .WithMany()
-                    .HasForeignKey(x => new { x.UserId, x.Symbol });
+                    .HasOne(lot => lot.TrackedSymbol)
+                    .WithMany(stock => stock.Lots)
+                    .HasForeignKey(x => new { x.UserId, x.Symbol })
+                    .HasPrincipalKey(x => new { x.UserId, x.Symbol });
             });
         }
     }
