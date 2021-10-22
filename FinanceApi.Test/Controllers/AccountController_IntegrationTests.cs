@@ -1,5 +1,7 @@
+using System.Net.Http;
 using FinanceApi.Areas.Account.Dtos;
 using FinanceApi.Areas.Account.Models;
+using FinanceApi.Extensions;
 
 namespace FinanceApi.Test.Controllers;
 
@@ -73,5 +75,27 @@ public class AccountController_IntegrationTests
             accounts,
             options => options.ExcludingMissingMembers().IncludingNestedObjects(),
             because: "these objects has been stored in the database");
+    }
+
+    [Fact]
+    public async Task POST_AddAccount_Test()
+    {
+        // Arrange
+        var userId = _data.Random.Next();
+        var client = _factory
+            .MockAuth(new() { UserId = userId })
+            .CreateClient();
+
+        var request = new AddAccountRequest(_data.String(), AccountType.Investment);
+        var content = RequestContentUtils.GetJsonContent(request);
+
+        // Act
+        var response = await client.PostAsync("api/v1/account", content);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Accepted);
+
+        var context = _factory.Services.CreateScope().ServiceProvider.GetRequiredService<FinanceContext>();
+        context.Account.Single(x => x.UserId == userId).Should().BeEquivalentTo(request, options => options.ExcludingMissingMembers());
     }
 }

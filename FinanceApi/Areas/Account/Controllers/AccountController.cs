@@ -20,4 +20,15 @@ public class AccountController : ControllerBase
     {
         return Ok(await accountRepository.GetAccountsWithEntries(HttpContext.GetUserId()));
     }
+
+    [HttpPost]
+    [Authorize]
+    [Consumes(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(StatusCodes.Status202Accepted)]
+    public async Task<ActionResult<Guid>> Post(
+        [FromBody] AddAccountRequest request,
+        [FromServices] IAccountRepository accountRepository)
+    {
+        return Accepted(await accountRepository.AddAccount(HttpContext.GetUserId(), request.Name, request.Type));
+    }
 }

@@ -9,8 +9,8 @@ global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Logging;
 global using MediaTypeNames = System.Net.Mime.MediaTypeNames;
 using FinanceApi;
-using FinanceApi.Converters;
 using FinanceApi.Options;
+using FinanceApi.Utils;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
@@ -76,7 +76,11 @@ static void ConfigureServices(WebApplicationBuilder builder)
         .AddJsonOptions(options =>
         {
             options.JsonSerializerOptions.AllowTrailingCommas = true;
-            options.JsonSerializerOptions.Converters.Add(new DateOnlyJsonConverter());
+
+            foreach (var converter in JsonUtils.SerializationOptions.Converters)
+            {
+                options.JsonSerializerOptions.Converters.Add(converter);
+            }
         });
 
     services.AddDbContext<FinanceContext>(options =>
