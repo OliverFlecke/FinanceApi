@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 namespace FinanceApi.Test.Utils
 {
     public class DataGenerator
@@ -25,6 +21,8 @@ namespace FinanceApi.Test.Utils
         public DateTime DateTimeAfter(DateTime date) => new(date.Ticks + Random.Next());
 
         public DateTimeOffset DateTimeOffset => new(Random.Next(10_000), TimeSpan.Zero);
+
+        public DateOnly DateOnly => new(Random.Next(1, 9999), Random.Next(1, 12), 1);
 
         public string String(int length = 32) => new(
             Enumerable

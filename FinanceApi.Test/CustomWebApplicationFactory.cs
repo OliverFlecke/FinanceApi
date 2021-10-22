@@ -1,6 +1,7 @@
 global using System;
 global using System.Collections.Generic;
 global using System.Linq;
+global using System.Net;
 global using System.Threading.Tasks;
 global using FinanceApi.Test.Utils;
 global using FinanceApi.Utils;
@@ -47,7 +48,8 @@ namespace FinanceApi.Test
                     logBuilder.AddProvider(new XUnitLoggerProvider(_testOutputHelper)));
             }
 
-            builder.ConfigureAppConfiguration((context, config) => {
+            builder.ConfigureAppConfiguration((context, config) =>
+            {
                 config.AddInMemoryCollection(new Dictionary<string, string>()
                 {
                     ["GitHub:ClientId"] = "ontueaseou",
