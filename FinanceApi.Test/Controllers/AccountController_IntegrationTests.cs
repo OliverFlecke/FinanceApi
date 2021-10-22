@@ -98,4 +98,129 @@ public class AccountController_IntegrationTests
         var context = _factory.Services.CreateScope().ServiceProvider.GetRequiredService<FinanceContext>();
         context.Account.Single(x => x.UserId == userId).Should().BeEquivalentTo(request, options => options.ExcludingMissingMembers());
     }
+
+    [Fact]
+    public async Task POST_AddAccountEntry_Test()
+    {
+        // Arrange
+        var userId = _data.Random.Next();
+        Guid? accountId = null;
+        var client = _factory
+            .SetupDatabase<FinanceContext>(async context =>
+            {
+                var entity = context.Account.Add(new()
+                {
+                    UserId = userId,
+                    Name = _data.String(),
+                    Type = AccountType.Investment,
+                });
+                await context.SaveChangesAsync();
+
+                accountId = entity.Entity.Id;
+            })
+            .MockAuth(new() { UserId = userId })
+            .CreateClient();
+
+        var request = new AddAccountEntryRequest(accountId!.Value, _data.DateOnly, _data.Random.NextDouble());
+        var content = RequestContentUtils.GetJsonContent(request);
+
+        // Act
+        var response = await client.PostAsync("api/v1/account/entry", content);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Accepted);
+
+        var context = _factory.Services.CreateScope().ServiceProvider.GetRequiredService<FinanceContext>();
+        context.AccountEntry.Should().ContainSingle(entry =>
+            entry.AccountId == accountId
+            && entry.Date == request.Date
+            && entry.Amount == request.Amount);
+    }
+
+    [Fact]
+    public async Task POST_UpdateAccountEntryForExistingEntry_Test()
+    {
+         // Arrange
+        var userId = _data.Random.Next();
+        Guid? accountId = null;
+        var date = _data.DateOnly;
+
+        var client = _factory
+            .SetupDatabase<FinanceContext>(async context =>
+            {
+                var entity = context.Account.Add(new()
+                {
+                    UserId = userId,
+                    Name = _data.String(),
+                    Type = AccountType.Investment,
+                    Entries = new List<AccountEntry>()
+                    {
+                        new() { Date = date, Amount = _data.Random.NextDouble(), },
+                    }
+                });
+                await context.SaveChangesAsync();
+
+                accountId = entity.Entity.Id;
+            })
+            .MockAuth(new() { UserId = userId })
+            .CreateClient();
+
+        var request = new AddAccountEntryRequest(accountId!.Value, date, _data.Random.NextDouble());
+        var content = RequestContentUtils.GetJsonContent(request);
+
+        // Act
+        var response = await client.PostAsync("api/v1/account/entry", content);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Accepted);
+
+        var context = _factory.Services.CreateScope().ServiceProvider.GetRequiredService<FinanceContext>();
+        context.AccountEntry.Include(x => x.Account).Where(x => x.Account!.UserId == userId)
+            .Should().ContainSingle(because: "no new entry has been added");
+
+        context.AccountEntry.Should().ContainSingle(entry =>
+            entry.AccountId == accountId
+            && entry.Date == request.Date
+            && entry.Amount == request.Amount);
+    }
+
+    [Fact]
+    public async Task POST_AddAccountEntryForOtherUser_ShouldNotBeAllowed_Test()
+    {
+
+        // Arrange
+        var userId = _data.Random.Next();
+        Guid? accountId = null;
+        var client = _factory
+            .SetupDatabase<FinanceContext>(async context =>
+            {
+                var entity = context.Account.Add(new()
+                {
+                    UserId = _data.Random.Next(), // Generate other user id
+                    Name = _data.String(),
+                    Type = AccountType.Investment,
+                });
+                await context.SaveChangesAsync();
+
+                accountId = entity.Entity.Id;
+            })
+            .MockAuth(new() { UserId = userId })
+            .CreateClient();
+
+        var request = new AddAccountEntryRequest(accountId!.Value, _data.DateOnly, _data.Random.NextDouble());
+        var content = RequestContentUtils.GetJsonContent(request);
+
+        // Act
+        var response = await client.PostAsync("api/v1/account/entry", content);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        (await response.Content.ReadAsStringAsync()).Should().Be($"Account with id '{request.AccountId}' could not be found");
+
+        var context = _factory.Services.CreateScope().ServiceProvider.GetRequiredService<FinanceContext>();
+        context.AccountEntry
+            .Include(x => x.Account)
+            .Where(x => x.Account!.UserId == userId)
+            .Should().BeEmpty();
+    }
 }

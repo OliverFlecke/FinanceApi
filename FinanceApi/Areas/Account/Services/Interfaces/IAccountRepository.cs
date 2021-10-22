@@ -15,4 +15,12 @@ public interface IAccountRepository
     /// <param name="type">Type of the account.</param>
     /// <returns>Id of the newly created account.</returns>
     Task<Guid> AddAccount(int userId, string name, AccountType type);
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    Task AddAccountEntry(int userId, AddAccountEntryRequest request);
 }

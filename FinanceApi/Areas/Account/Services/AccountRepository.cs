@@ -57,4 +57,39 @@ class AccountRepository : IAccountRepository
         return account.Entity.Id;
     }
 
+    /// <inheritdoc/>
+    public async Task AddAccountEntry(int userId, AddAccountEntryRequest request)
+    {
+        _logger.LogInformation($"Adding account entry for account '{request.AccountId}' for user '{userId}'");
+
+        var account = await _context.Account.FindAsync(request.AccountId);
+
+        if (account is null || account.UserId != userId)
+        {
+            throw new EntityNotFoundException($"Account with id '{request.AccountId}' could not be found");
+        }
+
+        var entry = await _context.AccountEntry
+            .Include(e => e.Account)
+            .SingleOrDefaultAsync(x =>
+                x.Date == request.Date
+                && x.AccountId == request.AccountId
+                && x.Account!.UserId == userId);
+
+        if (entry is null)
+        {
+            _context.AccountEntry.Add(new()
+            {
+                AccountId = request.AccountId,
+                Date = request.Date,
+                Amount = request.Amount,
+            });
+        }
+        else
+        {
+            entry.Amount = request.Amount;
+        }
+
+        await _context.SaveChangesAsync();
+    }
 }
