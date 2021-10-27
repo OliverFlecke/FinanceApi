@@ -15,6 +15,7 @@ services:
       dockerfile: FinanceApi/Dockerfile
     ports:
       - 5000:5000
+      - 5001:5001
     environment:
       DB__Host: database
       DB__User: postgres

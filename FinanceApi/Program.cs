@@ -10,9 +10,9 @@ global using Microsoft.Extensions.Logging;
 global using MediaTypeNames = System.Net.Mime.MediaTypeNames;
 using FinanceApi;
 using FinanceApi.Options;
-using FinanceApi.Utils;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
@@ -32,6 +32,11 @@ if (app.Environment.IsDevelopment())
     app.UseDeveloperExceptionPage();
     IdentityModelEventSource.ShowPII = true;
 }
+
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedProto,
+});
 
 app.UseSwagger();
 app.UseSwaggerUI();
