@@ -1,4 +1,3 @@
-using System.Net;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -32,7 +31,7 @@ public class AuthenticationController : ControllerBase
         }
 
 
-        if (HttpContext.IsLoggedIn())
+        if (HttpContext.User.Identity?.IsAuthenticated ?? false)
         {
             _logger.LogInformation($"User is already signed in as: '{HttpContext.GetUsername()}'");
             return Redirect(returnUrl!);
