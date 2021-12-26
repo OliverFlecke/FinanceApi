@@ -1,3 +1,4 @@
+using System.Net;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -30,8 +31,16 @@ public class AuthenticationController : ControllerBase
             return BadRequest();
         }
 
-        _logger.LogInformation($"Signing in user through {provider}. Redirect uri: {returnUrl}");
 
-        return Challenge(new AuthenticationProperties { RedirectUri = returnUrl }, provider);
+        if (HttpContext.IsLoggedIn())
+        {
+            _logger.LogInformation($"User is already signed in as: '{HttpContext.GetUsername()}'");
+            return Redirect(returnUrl!);
+        }
+        else
+        {
+            _logger.LogInformation($"Signing in user through {provider}. Redirect uri: {returnUrl}");
+            return Challenge(new AuthenticationProperties { RedirectUri = returnUrl }, provider);
+        }
     }
 }
