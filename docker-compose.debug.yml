@@ -22,10 +22,9 @@ services:
       DB__Database: postgres
       GitHub__ClientId: ${GH_CLIENT_ID}
       GitHub__ClientSecret: ${GH_CLIENT_SECRET}
+      ASPNETCORE_ENVIRONMENT: Development
     depends_on:
       - "database"
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
     volumes:
       - ~/.vsdbg:/remote_debugger:rw
 
