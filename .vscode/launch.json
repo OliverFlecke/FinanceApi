@@ -6,12 +6,11 @@
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build",
-      "program": "${workspaceFolder}/FinanceApi/bin/Debug/net5.0/FinanceApi.dll",
+      "program": "${workspaceFolder}/FinanceApi/bin/Debug/net6.0/FinanceApi.dll",
       "args": [],
       "cwd": "${workspaceFolder}/FinanceApi",
       "stopAtEntry": false,
       "serverReadyAction": {
-        "action": "openExternally",
         "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
       },
       "env": {

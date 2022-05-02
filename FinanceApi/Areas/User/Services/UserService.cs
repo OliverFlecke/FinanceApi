@@ -28,7 +28,11 @@ class UserService : IUserService
     /// <inheritdoc/>
     public async Task<UserResponse?> GetGithubUser(string? username)
     {
-        if (username is null) return null;
+        if (username is null)
+        {
+            _logger.LogWarning($"No GitHub username was provided");
+            return null;
+        }
 
         _logger.LogInformation($"Getting Github user '{username}'");
 

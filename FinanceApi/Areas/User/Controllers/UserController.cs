@@ -1,4 +1,3 @@
-using System.Net.Http;
 using FinanceApi.Areas.User.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
