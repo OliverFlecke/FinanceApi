@@ -51,6 +51,7 @@ namespace FinanceApi
             {
                 entity.HasKey(account => account.Id);
                 entity.HasIndex(account => new { account.UserId, account.Name });
+                entity.Property(account => account.Currency).HasDefaultValue("USD");
             });
 
             modelBuilder.Entity<AccountEntry>(entity =>
