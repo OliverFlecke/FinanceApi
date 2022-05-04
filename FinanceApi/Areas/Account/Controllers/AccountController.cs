@@ -29,7 +29,7 @@ public class AccountController : ControllerBase
         [FromBody] AddAccountRequest request,
         [FromServices] IAccountRepository accountRepository)
     {
-        return Accepted(await accountRepository.AddAccount(HttpContext.GetUserId(), request.Name, request.Type));
+        return Accepted(await accountRepository.AddAccount(HttpContext.GetUserId(), request));
     }
 
     [HttpPost("entry")]

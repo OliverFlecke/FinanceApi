@@ -77,8 +77,11 @@ public class AccountController_IntegrationTests
             because: "these objects has been stored in the database");
     }
 
-    [Fact]
-    public async Task POST_AddAccount_Test()
+    [Theory]
+    [InlineData(null)]
+    [InlineData("USD")]
+    [InlineData("DKK")]
+    public async Task POST_AddAccount_Test(string currency)
     {
         // Arrange
         var userId = _data.Random.Next();
@@ -86,7 +89,7 @@ public class AccountController_IntegrationTests
             .MockAuth(new() { UserId = userId })
             .CreateClient();
 
-        var request = new AddAccountRequest(_data.String(), AccountType.Investment);
+        var request = new AddAccountRequest(_data.String(), AccountType.Investment, currency);
         var content = RequestContentUtils.GetJsonContent(request);
 
         // Act
@@ -96,7 +99,13 @@ public class AccountController_IntegrationTests
         response.StatusCode.Should().Be(HttpStatusCode.Accepted);
 
         var context = _factory.Services.CreateScope().ServiceProvider.GetRequiredService<FinanceContext>();
-        context.Account.Single(x => x.UserId == userId).Should().BeEquivalentTo(request, options => options.ExcludingMissingMembers());
+        var account = context.Account.Single(x => x.UserId == userId);
+        account.Should().BeEquivalentTo(request, options => options.ExcludingMissingMembers().Excluding(x => x.Currency));
+
+        if (currency is null)
+            account.Currency.Should().Be("USD", because: "this is the default currency");
+        else
+            account.Currency.Should().BeEquivalentTo(currency, because: "this is the requested currency");
     }
 
     [Fact]

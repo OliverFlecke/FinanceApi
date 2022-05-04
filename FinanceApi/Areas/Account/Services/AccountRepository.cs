@@ -1,6 +1,5 @@
 using FinanceApi.Areas.Account.Dtos;
 using FinanceApi.Areas.Account.Extensions;
-using FinanceApi.Areas.Account.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinanceApi.Areas.Account.Services;
@@ -32,14 +31,14 @@ class AccountRepository : IAccountRepository
     }
 
     /// <inheritdoc/>
-    public async Task<Guid> AddAccount(int userId, string name, AccountType type)
+    public async Task<Guid> AddAccount(int userId, AddAccountRequest request)
     {
-        _logger.LogInformation($"Adding account '{name}' for user '{userId}'");
+        _logger.LogInformation($"Adding account '{request.Name}' for user '{userId}'");
 
         var entity = await _context.Account.SingleOrDefaultAsync(x =>
             x.UserId == userId
-            && x.Name == name
-            && x.Type == type);
+            && x.Name == request.Name
+            && x.Type == request.Type);
 
         if (entity is not null)
         {
@@ -49,8 +48,9 @@ class AccountRepository : IAccountRepository
         var account = _context.Account.Add(new()
         {
             UserId = userId,
-            Name = name,
-            Type = type,
+            Name = request.Name,
+            Type = request.Type,
+            Currency = request.Currency!,
         });
         await _context.SaveChangesAsync();
 
