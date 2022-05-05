@@ -1,5 +1,4 @@
 using FinanceApi.Areas.Account.Dtos;
-using FinanceApi.Areas.Account.Models;
 
 namespace FinanceApi.Areas.Account.Services;
 

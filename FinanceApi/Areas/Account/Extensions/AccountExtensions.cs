@@ -9,5 +9,6 @@ static class AccountExtensions
             account.Id,
             account.Name,
             account.Type,
+            account.Currency,
             account.Entries?.Select(e => e.ToEntryResponse()));
 }

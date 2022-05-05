@@ -8,8 +8,9 @@ public record AccountWithEntriesResponse : AccountResponse
         Guid Id,
         string Name,
         AccountType Type,
+        string Currency,
         IEnumerable<EntryResponse>? entries = null)
-        : base(Id, Name, Type)
+        : base(Id, Name, Type, Currency)
     {
         Entries = entries ?? Array.Empty<EntryResponse>();
     }
