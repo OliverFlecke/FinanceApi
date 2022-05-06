@@ -9,8 +9,9 @@ public record AccountWithEntriesResponse : AccountResponse
         string Name,
         AccountType Type,
         string Currency,
+        int SortKey,
         IEnumerable<EntryResponse>? entries = null)
-        : base(Id, Name, Type, Currency)
+        : base(Id, Name, Type, Currency, SortKey)
     {
         Entries = entries ?? Array.Empty<EntryResponse>();
     }

@@ -1,4 +1,3 @@
-using System.Net.Http;
 using FinanceApi.Areas.Account.Dtos;
 using FinanceApi.Areas.Account.Models;
 using FinanceApi.Extensions;
@@ -22,37 +21,8 @@ public class AccountController_IntegrationTests
     {
         // Arrange
         var userId = _data.Random.Next();
-        var dates = Enumerable.Range(0, 10).Select(_ => _data.DateOnly).Distinct().ToList();
-        var accounts = new List<Account>()
-        {
-            new()
-            {
-                Name = _data.String(),
-                Type = AccountType.Cash,
-
-            },
-            new()
-            {
-                Name = _data.String(),
-                Type = AccountType.Investment,
-            },
-            new()
-            {
-                Name = _data.String(),
-                Type = AccountType.Cash,
-            },
-        };
-        foreach (var account in accounts)
-        {
-            account.UserId = userId;
-            account.Entries = dates
-                .Select(date => new AccountEntry()
-                {
-                    Date = date,
-                    Amount = _data.Random.NextDouble(),
-                })
-                .ToList();
-        }
+        var accounts = GenerateAccounts().ToList();
+        GenerateSampleEntriesOnAccounts(userId, accounts);
 
         var client = _factory
             .SetupDatabase<FinanceContext>(async context =>
@@ -75,6 +45,8 @@ public class AccountController_IntegrationTests
             accounts,
             options => options.ExcludingMissingMembers().IncludingNestedObjects(),
             because: "these objects has been stored in the database");
+
+        content.Should().BeInAscendingOrder(x => x.SortKey);
     }
 
     [Theory]
@@ -100,12 +72,75 @@ public class AccountController_IntegrationTests
 
         var context = _factory.Services.CreateScope().ServiceProvider.GetRequiredService<FinanceContext>();
         var account = context.Account.Single(x => x.UserId == userId);
-        account.Should().BeEquivalentTo(request, options => options.ExcludingMissingMembers().Excluding(x => x.Currency));
+        account.Should().BeEquivalentTo(request,
+            options => options
+                .ExcludingMissingMembers()
+                .Excluding(x => x.Currency)
+                .Excluding(x => x.SortKey));
 
         if (currency is null)
             account.Currency.Should().Be("USD", because: "this is the default currency");
         else
             account.Currency.Should().BeEquivalentTo(currency, because: "this is the requested currency");
+    }
+
+    [Theory]
+    [InlineData(10)]
+    [InlineData(21)]
+    [InlineData(92134803)]
+    public async Task POST_AddAccountWithSortOrder_Test(int sortKey)
+    {
+        // Arrange
+        var userId = _data.Random.Next();
+        var client = _factory
+            .MockAuth(new() { UserId = userId })
+            .CreateClient();
+
+        var request = new AddAccountRequest(_data.String(), AccountType.Investment, SortKey: sortKey);
+        var content = RequestContentUtils.GetJsonContent(request);
+
+        // Act
+        var response = await client.PostAsync("api/v1/account", content);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Accepted);
+
+        var context = _factory.Services.CreateScope().ServiceProvider.GetRequiredService<FinanceContext>();
+        var account = context.Account.Single(x => x.UserId == userId);
+        account.Should().BeEquivalentTo(request, options => options.ExcludingMissingMembers().Excluding(x => x.Currency));
+    }
+
+    [Fact]
+    public async Task PUT_UpdateAccountsWithSortOrder_Test()
+    {
+        // Arrange
+        var userId = _data.Random.Next();
+        var accounts = GenerateAccounts().ToList();
+        GenerateSampleEntriesOnAccounts(userId, accounts);
+
+        var client = _factory
+            .SetupDatabase<FinanceContext>(async context =>
+            {
+                context.Account.AddRange(accounts);
+                await context.SaveChangesAsync();
+            })
+            .MockAuth(new() { UserId = userId })
+            .CreateClient();
+
+        var request = accounts
+            .Select(account => new UpdateAccountRequest(account.Id, SortKey: _data.Random.Next()))
+            .ToList();
+        var content = RequestContentUtils.GetJsonContent(request);
+
+        // Act
+        var response = await client.PutAsync("api/v1/account", content);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Accepted);
+        var context = _factory.Services.CreateScope().ServiceProvider.GetRequiredService<FinanceContext>();
+        context.Account.Where(a => a.UserId == userId).Should()
+            .BeEquivalentTo(request, options => options.Including(x => x.Id).Including(x => x.SortKey))
+            .And.BeEquivalentTo(accounts, options => options.Excluding(a => a.SortKey).Excluding(a => a.Entries));
     }
 
     [Fact]
@@ -149,7 +184,7 @@ public class AccountController_IntegrationTests
     [Fact]
     public async Task POST_UpdateAccountEntryForExistingEntry_Test()
     {
-         // Arrange
+        // Arrange
         var userId = _data.Random.Next();
         Guid? accountId = null;
         var date = _data.DateOnly;
@@ -231,5 +266,37 @@ public class AccountController_IntegrationTests
             .Include(x => x.Account)
             .Where(x => x.Account!.UserId == userId)
             .Should().BeEmpty();
+    }
+
+
+    private IEnumerable<Account> GenerateAccounts(int amount = 10) =>
+        Enumerable.Range(0, amount)
+            .Select(_ => new Account
+            {
+                Name = _data.String(),
+                Type = _data.EnumValue<AccountType>(),
+                SortKey = _data.Random.Next(),
+            });
+
+
+    private void GenerateSampleEntriesOnAccounts(int userId, List<Account> accounts)
+    {
+        var dates = Enumerable
+            .Range(0, 10)
+            .Select(_ => _data.DateOnly)
+            .Distinct()
+            .ToList();
+
+        foreach (var account in accounts)
+        {
+            account.UserId = userId;
+            account.Entries = dates
+                .Select(date => new AccountEntry()
+                {
+                    Date = date,
+                    Amount = _data.Random.NextDouble(),
+                })
+                .ToList();
+        }
     }
 }

@@ -15,6 +15,14 @@ public interface IAccountRepository
     Task<Guid> AddAccount(int userId, AddAccountRequest request);
 
     /// <summary>
+    /// Update a list of accounts.
+    /// </summary>
+    /// <param name="userId">User id of the owner of the accounts.</param>
+    /// <param name="request">Request with the accounts</param>
+    /// <returns></returns>
+    Task UpdateAccounts(int userId, IList<UpdateAccountRequest> request);
+
+    /// <summary>
     ///
     /// </summary>
     /// <param name="userId"></param>

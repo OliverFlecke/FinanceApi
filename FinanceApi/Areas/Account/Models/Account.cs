@@ -14,5 +14,7 @@ public class Account
     public string Currency { get; set; }
 #pragma warning restore CS8618 // Consider declaring the property as nullable.
 
+    public int SortKey { get; set; }
+
     public List<AccountEntry>? Entries { get; set; }
 }
