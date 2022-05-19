@@ -11,6 +11,9 @@ namespace FinanceApi.Test.Utils
             Random = new Random(seed),
         };
 
+        public T EnumValue<T>() where T : struct, Enum =>
+            Enum.GetValues<T>()[Random.Next(0, Enum.GetNames(typeof(T)).Length)];
+
         public IEnumerable<int> Numbers =>
             Enumerable.Range(0, int.MaxValue).Select(_ => Random.Next(int.MinValue, int.MaxValue));
 

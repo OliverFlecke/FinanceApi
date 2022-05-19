@@ -1,6 +1,5 @@
 using FinanceApi.Areas.Account.Dtos;
 using FinanceApi.Areas.Account.Extensions;
-using FinanceApi.Areas.Account.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinanceApi.Areas.Account.Services;
@@ -26,20 +25,21 @@ class AccountRepository : IAccountRepository
         var accounts = await _context.Account
             .Include(a => a.Entries)
             .Where(a => a.UserId == userId)
+            .OrderBy(a => a.SortKey)
             .ToListAsync();
 
         return accounts.Select(a => a.ToAccountWithEntriesResponse());
     }
 
     /// <inheritdoc/>
-    public async Task<Guid> AddAccount(int userId, string name, AccountType type)
+    public async Task<Guid> AddAccount(int userId, AddAccountRequest request)
     {
-        _logger.LogInformation($"Adding account '{name}' for user '{userId}'");
+        _logger.LogInformation($"Adding account '{request.Name}' for user '{userId}'");
 
         var entity = await _context.Account.SingleOrDefaultAsync(x =>
             x.UserId == userId
-            && x.Name == name
-            && x.Type == type);
+            && x.Name == request.Name
+            && x.Type == request.Type);
 
         if (entity is not null)
         {
@@ -49,12 +49,34 @@ class AccountRepository : IAccountRepository
         var account = _context.Account.Add(new()
         {
             UserId = userId,
-            Name = name,
-            Type = type,
+            Name = request.Name,
+            Type = request.Type,
+            Currency = request.Currency!,
+            SortKey = request.SortKey ?? await _context.Account.Where(a => a.UserId == userId).CountAsync()
         });
         await _context.SaveChangesAsync();
 
         return account.Entity.Id;
+    }
+
+    /// <inheritdoc/>
+    public async Task UpdateAccounts(int userId, IList<UpdateAccountRequest> request)
+    {
+        _logger.LogInformation($"Updating accounts for {userId}. Accounts: {string.Join(", ", request.Select(x => x.Id))}");
+
+        foreach (var r in request)
+        {
+            var account = r.FromUpdateAccountRequest();
+            _context.Attach(account);
+            var entry = _context.Entry(account);
+
+            if (r.Type is not null) entry.Property(a => a.Type).IsModified = true;
+            if (r.Name is not null) entry.Property(a => a.Name).IsModified = true;
+            if (r.Currency is not null) entry.Property(a => a.Currency).IsModified = true;
+            if (r.SortKey is not null) entry.Property(a => a.SortKey).IsModified = true;
+        }
+
+        await _context.SaveChangesAsync();
     }
 
     /// <inheritdoc/>
