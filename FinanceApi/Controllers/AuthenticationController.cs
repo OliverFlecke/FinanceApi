@@ -42,4 +42,13 @@ public class AuthenticationController : ControllerBase
             return Challenge(new AuthenticationProperties { RedirectUri = returnUrl }, provider);
         }
     }
+
+    [HttpGet("~/signout")]
+    public IActionResult SignOutEndpoint([FromQuery] string? returnUrl = "/")
+    {
+        _logger.LogInformation($"Logging out user: '{HttpContext.GetUsername()}'. Returning to {returnUrl}");
+        HttpContext.Response.Cookies.Delete(".AspNetCore.Cookies");
+
+        return Redirect(returnUrl ?? "/");
+    }
 }
