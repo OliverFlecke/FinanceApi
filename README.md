@@ -21,6 +21,12 @@ docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=password postgres:alpine
 
 Afterwards you can use `dotnet ef database update` from the `FinanceApi` directory to apply all migrations.
 
+### Loading data into the container
+
+If you have a sql file with data to load into the database (for example retrieved with `pg_dump`), then you can use `docker cp <filename> <container name>:<filename>` to copy the file into the docker container.
+Then use `docker exec -it <container name> sh` to enter the container.
+Lastly, use `psql -f <filename>` to run the script.
+
 ### Building Docker image
 
 A Dockerfile is provided in the `FinanceApi` directory, which can be used to build the application.
