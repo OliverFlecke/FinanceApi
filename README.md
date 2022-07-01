@@ -12,6 +12,15 @@ This is the recommended way to run the application during development.
 Application can be build with `dotnet build`.
 Tests can be executed with `dotnet test`.
 
+The application is dependent on the postgres backend to do anything interesting.
+To start a local db through [docker](https://docker.com) use:
+
+```sh
+docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=password postgres:alpine
+```
+
+Afterwards you can use `dotnet ef database update` from the `FinanceApi` directory to apply all migrations.
+
 ### Building Docker image
 
 A Dockerfile is provided in the `FinanceApi` directory, which can be used to build the application.
