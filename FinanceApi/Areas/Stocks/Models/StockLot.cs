@@ -4,9 +4,9 @@ namespace FinanceApi.Areas.Stocks.Models
     {
         public Guid Id { get; set; }
 
-        public int UserId { get; set; }
-
 #pragma warning disable CS8618 // Consider declaring the property as nullable.
+        public string UserId { get; set; }
+
         public string Symbol { get; set; }
 #pragma warning restore CS8618 // Consider declaring the property as nullable.
 

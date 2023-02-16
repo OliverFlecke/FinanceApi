@@ -12,7 +12,7 @@ class UserModule : IModule
 
     public IServiceCollection RegisterModule(IServiceCollection services)
     {
-        return services
-            .AddTransient<IUserService, UserService>();
+        return services;
+            // .AddTransient<IUserService, UserService>();
     }
 }

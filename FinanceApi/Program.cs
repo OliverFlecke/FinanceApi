@@ -1,20 +1,11 @@
-global using System;
-global using System.Collections.Generic;
-global using System.Linq;
-global using System.Text.Json;
-global using System.Threading.Tasks;
-global using FinanceApi.Exceptions;
-global using FinanceApi.Extensions;
-global using Microsoft.Extensions.DependencyInjection;
-global using Microsoft.Extensions.Logging;
-global using MediaTypeNames = System.Net.Mime.MediaTypeNames;
 using FinanceApi;
 using FinanceApi.Options;
-using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Logging;
@@ -59,16 +50,17 @@ static void ConfigureServices(WebApplicationBuilder builder)
 {
     var services = builder.Services;
 
-    services.Configure<GithubOptions>(builder.Configuration.GetSection(GithubOptions.Github));
-
     services.AddHttpClient();
     services
-        .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-        .AddCookie()
-        .AddGitHub(options =>
+        .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddJwtBearer(options =>
         {
-            options.ClientId = builder.Configuration["GitHub:ClientId"];
-            options.ClientSecret = builder.Configuration["GitHub:ClientSecret"];
+            var config = builder.Configuration
+                .GetSection(Auth0Options.SectionName)
+                .Get<Auth0Options>()!;
+
+            options.Authority = $"https://{config.Domain}/";
+            options.Audience = config.Audience;
         });
 
     services
@@ -90,8 +82,10 @@ static void ConfigureServices(WebApplicationBuilder builder)
 
     services.AddDbContext<FinanceContext>(options =>
     {
-        var config = builder.Configuration;
-        options.UseNpgsql($"host={config["DB:Host"]};database={config["DB:Database"]};user id={config["DB:User"]};password={config["DB:Password"]};port={config["DB:Port"]}");
+        var config = builder.Configuration
+            .GetSection(DbOptions.SectionName)
+            .Get<DbOptions>()!;
+        options.UseNpgsql(config.ConnectionString);
     });
 
     services

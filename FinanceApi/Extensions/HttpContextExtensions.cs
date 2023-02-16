@@ -6,12 +6,10 @@ namespace FinanceApi
 {
     static class HttpContextExtensions
     {
-        public static int GetUserId(this HttpContext context)
-        {
-            var claim = context.User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier);
-
-            return int.Parse(claim.Value);
-        }
+        public static string GetUserId(this HttpContext context) =>
+            context.User.Claims
+                .First(c => c.Type == ClaimTypes.NameIdentifier)
+                .Value;
 
         public static string? GetUsername(this HttpContext context)
         {

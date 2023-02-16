@@ -5,11 +5,11 @@ namespace FinanceApi.Areas.Stocks.Services;
 
 public interface IStockLotRepository
 {
-    IQueryable<StockLot> GetStockLots(int userId);
+    IQueryable<StockLot> GetStockLots(string userId);
 
-    Task<Guid> AddLot(int userId, AddStockLotRequest request);
+    Task<Guid> AddLot(string userId, AddStockLotRequest request);
 
-    Task UpdateLot(int userId, Guid id, UpdateStockLotRequest request);
+    Task UpdateLot(string userId, Guid id, UpdateStockLotRequest request);
 
-    Task DeleteLot(int userId, Guid lotId);
+    Task DeleteLot(string userId, Guid lotId);
 }
