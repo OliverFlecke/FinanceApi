@@ -10,6 +10,7 @@ namespace FinanceApi.Areas.Stocks.Controllers
 {
     [ApiController]
     [ApiVersion("1.0")]
+    [Authorize]
     [Route("api/v{version:apiVersion}/stock")]
     public class StockController : ControllerBase
     {
@@ -33,7 +34,6 @@ namespace FinanceApi.Areas.Stocks.Controllers
 
 
         [HttpGet("tracked")]
-        [Authorize]
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -45,14 +45,13 @@ namespace FinanceApi.Areas.Stocks.Controllers
                 .ToListAsync();
 
             return Ok(stocks.Select(x => new StockResponse
-                {
-                    Symbol = x.Symbol,
-                    Lots = x.Lots?.Select(lot => lot.ToStockLotResponse()).ToList() ?? new List<StockLotResponse>(),
-                }));
+            {
+                Symbol = x.Symbol,
+                Lots = x.Lots?.Select(lot => lot.ToStockLotResponse()).ToList() ?? new List<StockLotResponse>(),
+            }));
         }
 
         [HttpPost("tracked")]
-        [Authorize]
         [Consumes(MediaTypeNames.Text.Plain, MediaTypeNames.Application.Json)]
         public async Task<ActionResult> AddTrackedStock(
             [FromBody] string symbol,
