@@ -18,7 +18,7 @@ public class Stock_Lots_IntegrationTests
     public async Task POST_StockLot_AlreadyTracked_Test()
     {
         // Arrange
-        var userId = _random.Random.Next();
+        var userId = _random.String();;
         var request = RandomAddStockLotRequest();
         var client = _factory
             .SetupDatabase<FinanceContext>(async context =>
@@ -52,7 +52,7 @@ public class Stock_Lots_IntegrationTests
     [Fact]
     public async Task POST_StockLot_NotAlreadyTracked_Test()
     {
-        var userId = _random.Random.Next();
+        var userId = _random.String();;
         var request = RandomAddStockLotRequest();
         var client = _factory
             .MockAuth(new() { UserId = userId })
@@ -78,7 +78,7 @@ public class Stock_Lots_IntegrationTests
     [Fact]
     public async Task POST_StockLot_WithSoldData_Test()
     {
-        var userId = _random.Random.Next();
+        var userId = _random.String();;
         var request = RandomAddStockLotRequest();
         request.SoldDate = request.BuyDate + TimeSpan.FromDays(1);
         request.SoldPrice = _random.Random.NextDouble();
@@ -107,7 +107,7 @@ public class Stock_Lots_IntegrationTests
     {
         // Arrange
         var lotId = _random.Guid();
-        var userId = _random.Random.Next();
+        var userId = _random.String();;
         var client = _factory
             .MockAuth(new() { UserId = userId})
             .CreateClient();
@@ -128,7 +128,7 @@ public class Stock_Lots_IntegrationTests
     {
         // Arrange
         var lotId = _random.Guid();
-        var userId = _random.Random.Next();
+        var userId = _random.String();;
         var symbol = _random.String();
         var request = new UpdateStockLotRequest
         {
@@ -176,9 +176,9 @@ public class Stock_Lots_IntegrationTests
     {
         // Arrange
         var lotId = _random.Guid();
-        var userId = _random.Random.Next();
+        var userId = _random.String();;
         var request = RandomAddStockLotRequest();
-        var otherUserId = _random.Random.Next();
+        var otherUserId = _random.String();
 
         var client = _factory
             .SetupDatabase<FinanceContext>(async context =>
@@ -213,7 +213,7 @@ public class Stock_Lots_IntegrationTests
     public async Task GET_Lots_Test(int amount)
     {
         // Arrange
-        var userId = _random.Random.Next();
+        var userId = _random.String();;
         var lots = Enumerable.Range(0, amount)
             .Select(_ => RandomStockLot(userId: userId))
             .ToList();
@@ -247,7 +247,7 @@ public class Stock_Lots_IntegrationTests
     public async Task DELETE_StockLot_Test()
     {
         // Arrange
-        var userId = _random.Random.Next();
+        var userId = _random.String();;
         var id = _random.Guid();
 
         var client = _factory
@@ -279,7 +279,7 @@ public class Stock_Lots_IntegrationTests
     public async Task DELETE_LotNotFound_Test()
     {
         // Arrange
-        var userId = _random.Random.Next();
+        var userId = _random.String();;
         var id = _random.Guid();
 
         var client = _factory
@@ -301,14 +301,14 @@ public class Stock_Lots_IntegrationTests
     public async Task DELETE_LotIsAnotherUsers_Test()
     {
         // Arrange
-        var userId = _random.Random.Next();
+        var userId = _random.String();;
         var id = _random.Guid();
 
         var client = _factory
             .SetupDatabase<FinanceContext>(async context =>
             {
                 var symbol = _random.String();
-                var otherUser = _random.Random.Next();
+                var otherUser = _random.String();
                 context.Stock.Add(new()
                 {
                     UserId = otherUser,
@@ -341,10 +341,10 @@ public class Stock_Lots_IntegrationTests
         BuyBrokerage = _random.Random.NextDouble(),
     };
 
-    StockLot RandomStockLot(string? symbol = null, Guid? lotId = null, int? userId = null) => new()
+    StockLot RandomStockLot(string? symbol = null, Guid? lotId = null, string? userId = null) => new()
     {
         Id = lotId ?? _random.Guid(),
-        UserId = userId ?? _random.Random.Next(),
+        UserId = userId ?? _random.String(),
         Symbol = symbol ?? _random.String(),
         Shares = _random.Random.NextDouble(),
         BuyDate = _random.DateTimeOffset,

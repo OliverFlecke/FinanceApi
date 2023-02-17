@@ -71,7 +71,7 @@ namespace FinanceApi.Test.Utils
 
     class TestAuthData
     {
-        public int UserId { get; set; }
+        public required string UserId { get; set; }
 
         public string? Name { get; set; }
     }

@@ -34,7 +34,7 @@ public class Stock_Tracked_IntegrationTests : IClassFixture<DataGenerator>
     public async Task GetTrackedStocks_NoItemsListed_Test()
     {
         // Arrange
-        var userId = _data.Random.Next();
+        var userId = _data.String();;
 
         var client = _factory
             .MockAuth(new() { UserId = userId })
@@ -57,7 +57,7 @@ public class Stock_Tracked_IntegrationTests : IClassFixture<DataGenerator>
     public async Task GetTrackedStocks_Single_Test(int numberOfTrackedSymbols)
     {
         // Arrange
-        var userId = _data.Random.Next();
+        var userId = _data.String();;
         var symbols = Enumerable
             .Range(0, numberOfTrackedSymbols)
             .Select(_ => _data.String())
@@ -102,7 +102,7 @@ public class Stock_Tracked_IntegrationTests : IClassFixture<DataGenerator>
     public async Task POST_AddTrackedStock_Test()
     {
         // Arrange
-        var userId = _data.Random.Next();
+        var userId = _data.String();;
         var symbol = _data.String();
 
         var client = _factory
@@ -125,7 +125,7 @@ public class Stock_Tracked_IntegrationTests : IClassFixture<DataGenerator>
     public async Task POST_AddTrackedStock_WhenStockIsAlreadyTracked_Test()
     {
         // Arrange
-        var userId = _data.Random.Next();
+        var userId = _data.String();;
         var symbol = _data.String();
 
         var client = _factory
@@ -157,7 +157,7 @@ public class Stock_Tracked_IntegrationTests : IClassFixture<DataGenerator>
     public async Task GET_TrackedStocksWithLots_Test()
     {
         // Arrange
-        var userId = _data.Random.Next();
+        var userId = _data.String();;
         var expectedStocks = Enumerable.Range(0, 10)
             .Select(_ => _data.String())
             .Select(symbol => new TrackedStock
