@@ -187,7 +187,7 @@ public class Stock_Lots_IntegrationTests
                     Symbol = request.Symbol,
                     UserId = otherUserId,
                 });
-                context.StockLot.Add(RandomStockLot(request.Symbol, lotId, userId));
+                context.StockLot.Add(RandomStockLot(request.Symbol, lotId, otherUserId));
 
                 await context.SaveChangesAsync();
             })
