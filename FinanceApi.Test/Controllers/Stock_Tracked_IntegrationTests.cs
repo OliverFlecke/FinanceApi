@@ -1,6 +1,5 @@
 using System.Text;
 using System.Net.Http;
-using System.Net;
 using System.Text.Json;
 using FinanceApi.Areas.Stocks.Dtos;
 using FinanceApi.Areas.Stocks.Models;
@@ -27,14 +26,14 @@ public class Stock_Tracked_IntegrationTests : IClassFixture<DataGenerator>
         var response = await client.GetAsync("api/v1/stock/tracked");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound, because: "no user is logged in");
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized, because: "no user is logged in");
     }
 
     [Fact]
     public async Task GetTrackedStocks_NoItemsListed_Test()
     {
         // Arrange
-        var userId = _data.Random.Next();
+        var userId = _data.String();;
 
         var client = _factory
             .MockAuth(new() { UserId = userId })
@@ -57,7 +56,7 @@ public class Stock_Tracked_IntegrationTests : IClassFixture<DataGenerator>
     public async Task GetTrackedStocks_Single_Test(int numberOfTrackedSymbols)
     {
         // Arrange
-        var userId = _data.Random.Next();
+        var userId = _data.String();;
         var symbols = Enumerable
             .Range(0, numberOfTrackedSymbols)
             .Select(_ => _data.String())
@@ -95,14 +94,14 @@ public class Stock_Tracked_IntegrationTests : IClassFixture<DataGenerator>
         var response = await client.PostAsync("api/v1/stock/tracked", null!);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound, because: "no user is logged in");
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized, because: "no user is logged in");
     }
 
     [Fact]
     public async Task POST_AddTrackedStock_Test()
     {
         // Arrange
-        var userId = _data.Random.Next();
+        var userId = _data.String();;
         var symbol = _data.String();
 
         var client = _factory
@@ -125,7 +124,7 @@ public class Stock_Tracked_IntegrationTests : IClassFixture<DataGenerator>
     public async Task POST_AddTrackedStock_WhenStockIsAlreadyTracked_Test()
     {
         // Arrange
-        var userId = _data.Random.Next();
+        var userId = _data.String();;
         var symbol = _data.String();
 
         var client = _factory
@@ -157,7 +156,7 @@ public class Stock_Tracked_IntegrationTests : IClassFixture<DataGenerator>
     public async Task GET_TrackedStocksWithLots_Test()
     {
         // Arrange
-        var userId = _data.Random.Next();
+        var userId = _data.String();;
         var expectedStocks = Enumerable.Range(0, 10)
             .Select(_ => _data.String())
             .Select(symbol => new TrackedStock

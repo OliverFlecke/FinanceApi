@@ -50,10 +50,10 @@ namespace FinanceApi.Test
 
             builder.ConfigureAppConfiguration((context, config) =>
             {
-                config.AddInMemoryCollection(new Dictionary<string, string>()
+                config.AddInMemoryCollection(new Dictionary<string, string?>()
                 {
-                    ["GitHub:ClientId"] = "ontueaseou",
-                    ["GitHub:ClientSecret"] = "sntohue",
+                    ["Auth0:Domain"] = "oliverflecke.eu.auth0.com",
+                    ["Auth0:Audience"] = "https://finance.oliverflecke.me/"
                 });
             });
 

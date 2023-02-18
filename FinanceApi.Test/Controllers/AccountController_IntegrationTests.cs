@@ -20,7 +20,7 @@ public class AccountController_IntegrationTests
     public async Task GET_AccountWithEntries_Test()
     {
         // Arrange
-        var userId = _data.Random.Next();
+        var userId = _data.String();
         var accounts = GenerateAccounts().ToList();
         GenerateSampleEntriesOnAccounts(userId, accounts);
 
@@ -56,7 +56,7 @@ public class AccountController_IntegrationTests
     public async Task POST_AddAccount_Test(string currency)
     {
         // Arrange
-        var userId = _data.Random.Next();
+        var userId = _data.String();;
         var client = _factory
             .MockAuth(new() { UserId = userId })
             .CreateClient();
@@ -91,7 +91,7 @@ public class AccountController_IntegrationTests
     public async Task POST_AddAccountWithSortOrder_Test(int sortKey)
     {
         // Arrange
-        var userId = _data.Random.Next();
+        var userId = _data.String();;
         var client = _factory
             .MockAuth(new() { UserId = userId })
             .CreateClient();
@@ -114,7 +114,7 @@ public class AccountController_IntegrationTests
     public async Task PUT_UpdateAccountsWithSortOrder_Test()
     {
         // Arrange
-        var userId = _data.Random.Next();
+        var userId = _data.String();;
         var accounts = GenerateAccounts().ToList();
         GenerateSampleEntriesOnAccounts(userId, accounts);
 
@@ -147,7 +147,7 @@ public class AccountController_IntegrationTests
     public async Task POST_AddAccountEntry_Test()
     {
         // Arrange
-        var userId = _data.Random.Next();
+        var userId = _data.String();;
         Guid? accountId = null;
         var client = _factory
             .SetupDatabase<FinanceContext>(async context =>
@@ -185,7 +185,7 @@ public class AccountController_IntegrationTests
     public async Task POST_UpdateAccountEntryForExistingEntry_Test()
     {
         // Arrange
-        var userId = _data.Random.Next();
+        var userId = _data.String();;
         Guid? accountId = null;
         var date = _data.DateOnly;
 
@@ -233,14 +233,14 @@ public class AccountController_IntegrationTests
     {
 
         // Arrange
-        var userId = _data.Random.Next();
+        var userId = _data.String();;
         Guid? accountId = null;
         var client = _factory
             .SetupDatabase<FinanceContext>(async context =>
             {
                 var entity = context.Account.Add(new()
                 {
-                    UserId = _data.Random.Next(), // Generate other user id
+                    UserId = _data.String(), // Generate other user id
                     Name = _data.String(),
                     Type = AccountType.Investment,
                 });
@@ -279,7 +279,7 @@ public class AccountController_IntegrationTests
             });
 
 
-    private void GenerateSampleEntriesOnAccounts(int userId, List<Account> accounts)
+    private void GenerateSampleEntriesOnAccounts(string userId, List<Account> accounts)
     {
         var dates = Enumerable
             .Range(0, 10)

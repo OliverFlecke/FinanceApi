@@ -18,7 +18,7 @@ class AccountRepository : IAccountRepository
     }
 
     /// <inheritdoc/>
-    public async Task<IEnumerable<AccountWithEntriesResponse>> GetAccountsWithEntries(int userId)
+    public async Task<IEnumerable<AccountWithEntriesResponse>> GetAccountsWithEntries(string userId)
     {
         _logger.LogInformation($"Getting account entries for user '{userId}'");
 
@@ -32,7 +32,7 @@ class AccountRepository : IAccountRepository
     }
 
     /// <inheritdoc/>
-    public async Task<Guid> AddAccount(int userId, AddAccountRequest request)
+    public async Task<Guid> AddAccount(string userId, AddAccountRequest request)
     {
         _logger.LogInformation($"Adding account '{request.Name}' for user '{userId}'");
 
@@ -60,7 +60,7 @@ class AccountRepository : IAccountRepository
     }
 
     /// <inheritdoc/>
-    public async Task UpdateAccounts(int userId, IList<UpdateAccountRequest> request)
+    public async Task UpdateAccounts(string userId, IList<UpdateAccountRequest> request)
     {
         _logger.LogInformation($"Updating accounts for {userId}. Accounts: {string.Join(", ", request.Select(x => x.Id))}");
 
@@ -80,7 +80,7 @@ class AccountRepository : IAccountRepository
     }
 
     /// <inheritdoc/>
-    public async Task AddAccountEntry(int userId, AddAccountEntryRequest request)
+    public async Task AddAccountEntry(string userId, AddAccountEntryRequest request)
     {
         _logger.LogInformation($"Adding account entry for account '{request.AccountId}' for user '{userId}'");
 

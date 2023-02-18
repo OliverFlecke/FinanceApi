@@ -4,7 +4,7 @@ Repository for a finance API to store track and store stocks with lots and other
 
 ## Development
 
-Requires .NET 6.0 or newer SDK.
+Requires .NET 7.0 or newer SDK.
 
 Application can now be run in hot reload mode with `dotnet watch run`.
 This is the recommended way to run the application during development.

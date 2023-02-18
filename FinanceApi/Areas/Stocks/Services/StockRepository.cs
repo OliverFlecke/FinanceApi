@@ -15,14 +15,14 @@ class StockRepository : IStockRepository
         _context = context;
     }
 
-    public IQueryable<TrackedStock> GetTrackedStocksForUser(int userId)
+    public IQueryable<TrackedStock> GetTrackedStocksForUser(string userId)
     {
         _logger.LogInformation($"Getting tracked stocks for user '{userId}'");
 
         return _context.Stock.Where(x => x.UserId == userId);
     }
 
-    public async Task TrackStock(int userId, string symbol)
+    public async Task TrackStock(string userId, string symbol)
     {
         _logger.LogInformation($"Start tracking '{symbol}' for user '{userId}'");
 

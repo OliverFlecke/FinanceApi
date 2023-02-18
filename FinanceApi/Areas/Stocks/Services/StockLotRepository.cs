@@ -20,19 +20,20 @@ class StockLotRepository : IStockLotRepository
     }
 
     /// <inheritdoc />
-    public IQueryable<StockLot> GetStockLots(int userId)
+    public IQueryable<StockLot> GetStockLots(string userId)
     {
         return _context.StockLot.Where(x => x.UserId == userId);
     }
 
     /// <inheritdoc/>
-    public async Task<Guid> AddLot(int userId, AddStockLotRequest request)
+    public async Task<Guid> AddLot(string userId, AddStockLotRequest request)
     {
         _logger.LogInformation($"Addding stock lot for user '{userId}':\n {request}");
 
         await _stockRepository.TrackStock(userId, request.Symbol);
 
-        var lot = _context.StockLot.Add(new() {
+        var lot = _context.StockLot.Add(new()
+        {
             UserId = userId,
             Symbol = request.Symbol,
             Shares = request.Shares,
@@ -49,7 +50,7 @@ class StockLotRepository : IStockLotRepository
     }
 
     /// <inheritdoc/>
-    public async Task UpdateLot(int userId, Guid id, UpdateStockLotRequest request)
+    public async Task UpdateLot(string userId, Guid id, UpdateStockLotRequest request)
     {
         var entity = await _context.StockLot.FindAsync(id);
         if (entity is null || entity.UserId != userId) throw new EntityNotFoundException($"Lot with id '{id}' was not found");
@@ -66,7 +67,7 @@ class StockLotRepository : IStockLotRepository
     }
 
     /// <inheritdoc/>
-    public async Task DeleteLot(int userId, Guid lotId)
+    public async Task DeleteLot(string userId, Guid lotId)
     {
         var entity = await _context.StockLot.FindAsync(lotId);
         if (entity is null || entity.UserId != userId) throw new EntityNotFoundException($"Lot with id '{lotId}' was not found");

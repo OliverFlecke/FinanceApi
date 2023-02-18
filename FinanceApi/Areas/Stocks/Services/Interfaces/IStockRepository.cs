@@ -4,7 +4,7 @@ namespace FinanceApi.Areas.Stocks.Services;
 
 public interface IStockRepository
 {
-    IQueryable<TrackedStock> GetTrackedStocksForUser(int userId);
+    IQueryable<TrackedStock> GetTrackedStocksForUser(string userId);
 
-    Task TrackStock(int userId, string symbol);
+    Task TrackStock(string userId, string symbol);
 }
