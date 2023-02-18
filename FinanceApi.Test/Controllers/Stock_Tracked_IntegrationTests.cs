@@ -1,6 +1,5 @@
 using System.Text;
 using System.Net.Http;
-using System.Net;
 using System.Text.Json;
 using FinanceApi.Areas.Stocks.Dtos;
 using FinanceApi.Areas.Stocks.Models;
@@ -27,7 +26,7 @@ public class Stock_Tracked_IntegrationTests : IClassFixture<DataGenerator>
         var response = await client.GetAsync("api/v1/stock/tracked");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound, because: "no user is logged in");
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized, because: "no user is logged in");
     }
 
     [Fact]
@@ -95,7 +94,7 @@ public class Stock_Tracked_IntegrationTests : IClassFixture<DataGenerator>
         var response = await client.PostAsync("api/v1/stock/tracked", null!);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound, because: "no user is logged in");
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized, because: "no user is logged in");
     }
 
     [Fact]

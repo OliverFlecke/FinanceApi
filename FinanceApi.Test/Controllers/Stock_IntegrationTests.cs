@@ -1,13 +1,12 @@
 using System.Text.Json;
-using System.Collections.Generic;
 using FinanceApi.Areas.Stocks.Dtos;
-using System.Net;
 
 namespace FinanceApi.Test
 {
     public class Stock_IntegrationTests
     {
         readonly CustomWebApplicationFactory _factory;
+        readonly DataGenerator _random = new();
 
         public Stock_IntegrationTests(ITestOutputHelper output) => _factory = new(output);
 
@@ -16,7 +15,9 @@ namespace FinanceApi.Test
         public async Task GetStockSymbol_NoSymbols_Test()
         {
             // Arrange
-            var client = _factory.CreateClient();
+            var client = _factory
+                .MockAuth(new() { UserId = _random.String() })
+                .CreateClient();
 
             // Act
             var response = await client.GetAsync("/api/v1/stock");
@@ -29,7 +30,9 @@ namespace FinanceApi.Test
         public async Task GetStockSymbol_Single_Test()
         {
             // Arrange
-            var client = _factory.CreateClient();
+            var client = _factory
+                .MockAuth(new() { UserId = _random.String() })
+                .CreateClient();
             var uri = new UriBuilder
             {
                 Path = "/api/v1/stock",
@@ -49,7 +52,9 @@ namespace FinanceApi.Test
         public async Task GetStockSymbol_Multiple_Test()
         {
             // Arrange
-            var client = _factory.CreateClient();
+            var client = _factory
+                .MockAuth(new() { UserId = _random.String() })
+                .CreateClient();
             var uri = new UriBuilder
             {
                 Path = "/api/v1/stock",
