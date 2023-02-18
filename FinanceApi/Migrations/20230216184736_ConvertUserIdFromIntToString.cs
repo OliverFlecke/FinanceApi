@@ -38,9 +38,9 @@ namespace FinanceApi.Migrations
                 oldType: "integer");
 
 
-            migrationBuilder.Sql("UPDATE stock_lot SET user_id = 'github|' || user_id");
-            migrationBuilder.Sql("UPDATE stock SET user_id = 'github|' || user_id");
-            migrationBuilder.Sql("UPDATE account SET user_id = 'github|' || user_id");
+            migrationBuilder.Sql("UPDATE stock_lot SET user_id = 'github|' || user_id;");
+            migrationBuilder.Sql("UPDATE stock SET user_id = 'github|' || user_id;");
+            migrationBuilder.Sql("UPDATE account SET user_id = 'github|' || user_id;");
 
             migrationBuilder.AddForeignKey(
                 name: "fk_stock_lot_stock_tracked_symbol_temp_id",
@@ -58,9 +58,9 @@ namespace FinanceApi.Migrations
                 name: "fk_stock_lot_stock_tracked_symbol_temp_id",
                 table: "stock_lot");
 
-            migrationBuilder.Sql("UPDATE stock_lot SET user_id = replace(user_id, 'github|', '')");
-            migrationBuilder.Sql("UPDATE stock SET user_id = replace(user_id, 'github|', '')");
-            migrationBuilder.Sql("UPDATE account SET user_id = replace(user_id, 'github|', '')");
+            migrationBuilder.Sql("UPDATE stock_lot SET user_id = replace(user_id, 'github|', '');");
+            migrationBuilder.Sql("UPDATE stock SET user_id = replace(user_id, 'github|', '');");
+            migrationBuilder.Sql("UPDATE account SET user_id = replace(user_id, 'github|', '');");
 
             migrationBuilder.Sql("ALTER TABLE stock_lot " +
                 "ALTER COLUMN user_id TYPE integer USING user_id::integer");
